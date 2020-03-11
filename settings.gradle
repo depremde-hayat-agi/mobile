@@ -1,0 +1,2 @@
+rootProject.name='DeHA'
+include ':app'
