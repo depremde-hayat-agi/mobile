@@ -20,6 +20,11 @@
         <meta-data
             android:name="com.google.android.nearby.messages.API_KEY"
             android:value="AIzaSyByvx7Z4aSCReWk8gxnSxZNcDx4i_DESZ0" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCV9T2wrYsmH9zgvwiLnh_umKhJ1z4f34I" />
+
     </application>
 
 

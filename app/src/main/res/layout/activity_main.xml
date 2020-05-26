@@ -6,59 +6,40 @@
     tools:context=".MainActivity">
 
     <data>
+
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#272c33">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/text_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Message"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/layout_buttons"
-            android:layout_marginBottom="20dp"
-            android:textSize="18sp"
-            android:textColor="@color/colorWhite"/>
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/design_default_color_primary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_buttons"
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="40dp">
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <EditText
-                android:id="@+id/input_message"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/button_send"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="10dp"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/colorWhite"
-                app:backgroundTint="@color/colorWhite"
-                />
 
-            <Button
-                android:id="@+id/button_send"
-                android:text="Send"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                style="@style/HW_ButtonStyle" />
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>
