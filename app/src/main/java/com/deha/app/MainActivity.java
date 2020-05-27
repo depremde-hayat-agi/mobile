@@ -7,6 +7,11 @@ import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import com.deha.app.databinding.ActivityMainBinding;
+import com.deha.app.model.RequestModel;
+import com.deha.app.model.UserModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             localStorageService.setUserId(Utils.getUuid());
         }
 
-        navigateBroadcastMessageFragment();
+        navigateToDiscoverMapFragment();
     }
 
     public void navigateBroadcastMessageFragment() {
@@ -38,6 +43,17 @@ public class MainActivity extends AppCompatActivity {
     public void navigateToHouseLocationFragment() {
         FragmentUtils.replaceFragment(getSupportFragmentManager(),
                 HouseLocationFragment.newInstance(false, null), R.id.container, "householdinfo");
+    }
+
+    public void navigateToDiscoverMapFragment() {
+        List<UserModel> users = new ArrayList<>();
+        users.add(new UserModel("1", "akbas", "39.9209483", "32.8277882", 1));
+        users.add(new UserModel("2", "akbas2", "39.9219483", "32.8277882", 1));
+        users.add(new UserModel("3", "akbas3", "39.9229483", "32.8277882", 1));
+        users.add(new UserModel("4", "akbas4", "39.9239483", "32.8277882", 1));
+        RequestModel requestModel = new RequestModel("0", 39.9234809, 32.8197219, users);
+        FragmentUtils.replaceFragment(getSupportFragmentManager(),
+                DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");
     }
 
     @Override
