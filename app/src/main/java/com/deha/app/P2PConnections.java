@@ -25,33 +25,5 @@ public class P2PConnections {
         this.context = context;
     }
 
-    private void startAdvertising(Context context) {
-        AdvertisingOptions advertisingOptions =
-                new AdvertisingOptions.Builder().setStrategy(Strategy.P2P_CLUSTER).build();
-        Nearby.getConnectionsClient(context)
-                .startAdvertising(
-                        , "1", new ConnectionLifecycleCallback() {
-                            @Override
-                            public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
-
-                            }
-                            @Override
-                            public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-
-                            }
-                            @Override
-                            public void onDisconnected(@NonNull String s) {
-
-                            }
-                        }, advertisingOptions)
-                .addOnSuccessListener(
-                        (Void unused) -> {
-
-                        })
-                .addOnFailureListener(
-                        (Exception e) -> {
-
-                        });
-    }
 
 }
