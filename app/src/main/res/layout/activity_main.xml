@@ -14,6 +14,30 @@
         android:background="#272c33">
 
         <Button
+            android:id="@+id/button_discover"
+            android:text="discover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/button_advertise"
+            style="@style/HW_ButtonStyle"
+            android:layout_marginBottom="30dp"/>
+
+        <Button
+            android:id="@+id/button_advertise"
+            android:text="Advertise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/button_send_remote"
+            style="@style/HW_ButtonStyle"
+            android:layout_marginBottom="30dp"/>
+
+        <Button
             android:id="@+id/button_send_remote"
             android:text="Send to Server"
             android:layout_width="wrap_content"
