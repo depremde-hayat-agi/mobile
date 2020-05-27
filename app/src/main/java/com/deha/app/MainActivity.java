@@ -11,6 +11,7 @@ import com.deha.app.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static String userId;
     private ActivityMainBinding binding;
 
 
@@ -23,10 +24,12 @@ public class MainActivity extends AppCompatActivity {
         binding.setLifecycleOwner(this);
 
         LocalStorageService localStorageService = new LocalStorageService(getSharedPreferences(getPackageName(), MODE_PRIVATE));
+
         if (localStorageService.getUserId() == null) {
             localStorageService.setUserId(Utils.getUuid());
         }
 
+        userId = localStorageService.getUserId();
         navigateBroadcastMessageFragment();
     }
 
