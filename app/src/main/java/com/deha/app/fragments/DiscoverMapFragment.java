@@ -23,6 +23,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tomergoldst.tooltips.ToolTip;
+import com.tomergoldst.tooltips.ToolTipsManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,15 +71,21 @@ public class DiscoverMapFragment extends Fragment implements OnMapReadyCallback 
     return binding.getRoot();
   }
 
+  private void showTooltip() {
+    final ToolTipsManager toolTipsManager = new ToolTipsManager();
+    ToolTip.Builder builder = new ToolTip.Builder(getContext(), binding.buttonHelp, binding.parent, "Yardıma mı ihtiyacınız var?", ToolTip.POSITION_ABOVE);
+    builder.setGravity(ToolTip.GRAVITY_CENTER);
+    builder.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
+    toolTipsManager.show(builder.build());
+  }
+
   private void setActions() {
     binding.buttonHelp.setOnClickListener(v -> {
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-      builder.setMessage("Do you want to ask for help?")
-          .setPositiveButton("Yes", (dialog, id) -> {
-            // FIRE ZE MISSILES!
+      builder.setMessage("Yardım isteği göndermek ister misiniz?")
+          .setPositiveButton("Evet", (dialog, id) -> {
           })
-          .setNegativeButton("No", (dialog, id) -> {
-            // User cancelled the dialog
+          .setNegativeButton("Hayır", (dialog, id) -> {
           });
       // Create the AlertDialog object and return it
       builder.create().show();
@@ -95,6 +103,7 @@ public class DiscoverMapFragment extends Fragment implements OnMapReadyCallback 
     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(38.734802, 35.467987), 4.6f));
 
     setMarkers();
+    showTooltip();
   }
 
   private void setMarkers() {
