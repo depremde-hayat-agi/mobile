@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateBroadcastMessageFragment() {
         FragmentUtils.replaceFragment(getSupportFragmentManager(),
-                BroadcastMessageFragment.newInstance(), R.id.container, "householdinfo");
+                BroadcastMessageFragment.newInstance(), R.id.container, "broadcastmessage");
     }
 
     public void navigateToHouseLocationFragment() {
