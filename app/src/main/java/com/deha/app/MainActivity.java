@@ -7,8 +7,14 @@ import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import com.deha.app.databinding.ActivityMainBinding;
+import com.deha.app.fragments.BroadcastMessageFragment;
+import com.deha.app.fragments.DiscoverMapFragment;
+import com.deha.app.fragments.HouseLocationFragment;
 import com.deha.app.model.RequestModel;
 import com.deha.app.model.UserModel;
+import com.deha.app.utils.FragmentUtils;
+import com.deha.app.utils.LocalStorageService;
+import com.deha.app.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
