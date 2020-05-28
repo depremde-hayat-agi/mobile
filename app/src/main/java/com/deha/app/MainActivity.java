@@ -53,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToDiscoverMapFragment() {
         List<UserModel> users = new ArrayList<>();
-        users.add(new UserModel("1", "akbas", "39.9209483", "32.8277882", 1));
-        users.add(new UserModel("2", "akbas2", "39.9219483", "32.8277882", 1));
-        users.add(new UserModel("3", "akbas3", "39.9229483", "32.8277882", 1));
-        users.add(new UserModel("4", "akbas4", "39.9239483", "32.8277882", 1));
+        users.add(new UserModel("1", "akbas", 39.9209483, 32.8277882, 1));
+        users.add(new UserModel("2", "akbas2", 39.9219483, 32.8277882, 1));
+        users.add(new UserModel("3", "akbas3", 39.9229483, 32.8277882, 1));
+        users.add(new UserModel("4", "akbas4", 39.9239483, 32.8277882, 1));
         RequestModel requestModel = new RequestModel("0", 39.9234809, 32.8197219, users);
         FragmentUtils.replaceFragment(getSupportFragmentManager(),
                 DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");

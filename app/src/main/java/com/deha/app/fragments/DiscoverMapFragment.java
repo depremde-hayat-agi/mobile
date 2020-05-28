@@ -83,7 +83,7 @@ public class DiscoverMapFragment extends Fragment implements OnMapReadyCallback 
     if (data != null && data.getPositiveList() != null) {
       for (UserModel user : data.getPositiveList()) {
         Marker marker = googleMap.addMarker(new MarkerOptions()
-            .position(new LatLng(Double.parseDouble(user.getLatitude()), Double.parseDouble(user.getLongitude())))
+            .position(new LatLng(user.getLatitude(), user.getLongitude()))
             .title(user.getName())
             .snippet("Yardım ediiinnnn"));
 //        googleMap.setMyLocationEnabled(true);
