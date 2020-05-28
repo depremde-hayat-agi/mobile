@@ -37,7 +37,7 @@
 
             <Button
                 android:id="@+id/button_safe"
-                android:text="I'm safe"
+                android:text="GÜVENDEYİM"
                 android:textColor="@android:color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
