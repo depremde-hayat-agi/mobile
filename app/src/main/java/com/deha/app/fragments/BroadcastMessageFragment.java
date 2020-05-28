@@ -3,7 +3,6 @@ package com.deha.app.fragments;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
-import com.deha.app.P2PConnections;
+import com.deha.app.service.P2PConnections;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentBroadcastMessageBinding;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.messages.Message;
-import com.google.android.gms.nearby.messages.MessageListener;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
