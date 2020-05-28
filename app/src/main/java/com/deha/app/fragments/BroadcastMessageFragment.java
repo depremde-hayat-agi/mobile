@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
+import com.deha.app.P2PConnections;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentBroadcastMessageBinding;
 import com.google.android.gms.nearby.Nearby;
