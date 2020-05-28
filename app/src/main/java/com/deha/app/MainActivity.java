@@ -22,6 +22,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static String userId;
     private ActivityMainBinding binding;
 
 
@@ -38,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
             localStorageService.setUserId(Utils.getUuid());
         }
 
-        navigateToDiscoverMapFragment();
+        userId = localStorageService.getUserId();
+        navigateBroadcastMessageFragment();
     }
 
     public void navigateBroadcastMessageFragment() {

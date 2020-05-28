@@ -1,6 +1,7 @@
 package com.deha.app.fragments;
 
 
+import android.Manifest;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,13 +19,15 @@ import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class BroadcastMessageFragment extends Fragment {
 
-    private MessageListener messageListener;
-    private Message message;
     public static final String TAG = "Nearby";
+    public static final int LOCATION_PERMISSION_REQUEST_CODE = 11;
 
     private FragmentBroadcastMessageBinding binding;
+    private P2PConnections p2pConnections;
 
     public static BroadcastMessageFragment newInstance() {
         BroadcastMessageFragment fragment = new BroadcastMessageFragment();
@@ -34,36 +37,46 @@ public class BroadcastMessageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        String[] perms = { Manifest.permission.ACCESS_FINE_LOCATION};
 
-        messageListener = new MessageListener() {
-            @Override
-            public void onFound(Message message) {
-                binding.textMessage.setText(binding.textMessage.getText() + " " + new String(message.getContent()));
-            }
+        EasyPermissions.requestPermissions(this, "fine_location",
+                LOCATION_PERMISSION_REQUEST_CODE, perms);
 
-            @Override
-            public void onLost(Message message) {
-                Log.d(TAG, "Lost sight of message: " + new String(message.getContent()));
-            }
-        };
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_broadcast_message, container, false);
         binding.setLifecycleOwner(this);
+
+        p2pConnections = new P2PConnections(getContext(), new P2PConnections.P2PListener() {
+            @Override
+            public void newMessageArrived(String message) {
+                binding.textMessage.setText(binding.textMessage.getText() + " " + message);
+            }
+        });
+
+        binding.buttonAdvertise.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                p2pConnections.startAdvertising();
+            }
+        });
+
+        binding.buttonDiscover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                p2pConnections.startDiscovery();
+
+            }
+        });
 
         binding.buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(message != null){
-                    Nearby.getMessagesClient(getActivity()).unpublish(message);
-                }
-
-                message = new Message(binding.inputMessage.getText().toString().getBytes());
-                Nearby.getMessagesClient(getActivity()).publish(message);
+                p2pConnections.sendMessage(binding.inputMessage.getText().toString());
             }
         });
 
@@ -73,20 +86,11 @@ public class BroadcastMessageFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Nearby.getMessagesClient(getActivity()).subscribe(messageListener);
 
     }
 
     @Override
     public void onStop() {
-        if(message != null){
-            Nearby.getMessagesClient(getActivity()).unpublish(message);
-        }
-
-        if(messageListener != null){
-            Nearby.getMessagesClient(getActivity()).unsubscribe(messageListener);
-        }
-
         super.onStop();
     }
 
