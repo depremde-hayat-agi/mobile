@@ -1,5 +1,7 @@
 package com.deha.app.model;
 
+import java.util.Objects;
+
 public class UserModel {
   private String id;
   private String name;
@@ -53,5 +55,18 @@ public class UserModel {
 
   public void setOrder(int order) {
     this.order = order;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    UserModel userModel = (UserModel) o;
+    return id.equals(userModel.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }
