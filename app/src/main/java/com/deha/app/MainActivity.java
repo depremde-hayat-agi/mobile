@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         userId = localStorageService.getUserId();
-        navigateBroadcastMessageFragment();
+        navigateToDiscoverMapFragment();
     }
 
     public void navigateBroadcastMessageFragment() {

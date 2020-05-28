@@ -5,31 +5,35 @@ import com.deha.app.di.DI;
 import java.util.List;
 
 public class MessageModel {
-  private List<UserModel> positiveList;
-  private List<String> negativeList;
+  private List<UserModel> safeList;
+  private List<UserModel> helpList;
 
-  public MessageModel(List<UserModel> positiveList, List<String> negativeList) {
-    this.positiveList = positiveList;
-    this.negativeList = negativeList;
+  public MessageModel(List<UserModel> safeList, List<UserModel> helpList) {
+    this.safeList = safeList;
+    this.helpList = helpList;
   }
 
-  public List<UserModel> getPositiveList() {
-    return positiveList;
+  public List<UserModel> getSafeList() {
+    return safeList;
   }
 
-  public void setPositiveList(List<UserModel> positiveList) {
-    this.positiveList = positiveList;
+  public void setSafeList(List<UserModel> safeList) {
+    this.safeList = safeList;
   }
 
-  public List<String> getNegativeList() {
-    return negativeList;
+  public List<UserModel> getHelpList() {
+    return helpList;
   }
 
-  public void setNegativeList(List<String> negativeList) {
-    this.negativeList = negativeList;
+  public void setHelpList(List<UserModel> helpList) {
+    this.helpList = helpList;
   }
 
   public static MessageModel fromJson(String json) {
     return DI.getJsonUtils().fromJson(json, MessageModel.class);
+  }
+
+  public String toJson() {
+    return DI.getJsonUtils().toJson(this);
   }
 }

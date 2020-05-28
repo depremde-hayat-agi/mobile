@@ -1,5 +1,6 @@
 package com.deha.app.fragments;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
@@ -63,7 +65,24 @@ public class DiscoverMapFragment extends Fragment implements OnMapReadyCallback 
 
     SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.discover_map);
     mapFrag.getMapAsync(this);
+    setActions();
     return binding.getRoot();
+  }
+
+  private void setActions() {
+    binding.buttonHelp.setOnClickListener(v -> {
+      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      builder.setMessage("Do you want to ask for help?")
+          .setPositiveButton("Yes", (dialog, id) -> {
+            // FIRE ZE MISSILES!
+          })
+          .setNegativeButton("No", (dialog, id) -> {
+            // User cancelled the dialog
+          });
+      // Create the AlertDialog object and return it
+      builder.create().show();
+
+    });
   }
 
   @Override
