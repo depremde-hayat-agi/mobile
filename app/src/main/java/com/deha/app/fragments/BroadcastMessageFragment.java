@@ -1,4 +1,4 @@
-package com.deha.app;
+package com.deha.app.fragments;
 
 
 import android.Manifest;
@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
+import com.deha.app.R;
 import com.deha.app.databinding.FragmentBroadcastMessageBinding;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
