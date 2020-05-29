@@ -25,7 +25,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class BroadcastMessageFragment extends Fragment {
 
     public static final String TAG = "Nearby";
-    public static final int LOCATION_PERMISSION_REQUEST_CODE = 11;
 
     private FragmentBroadcastMessageBinding binding;
     private P2PConnections p2pConnections;
@@ -38,10 +37,6 @@ public class BroadcastMessageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String[] perms = { Manifest.permission.ACCESS_FINE_LOCATION};
-
-        EasyPermissions.requestPermissions(this, "fine_location",
-                LOCATION_PERMISSION_REQUEST_CODE, perms);
 
     }
 

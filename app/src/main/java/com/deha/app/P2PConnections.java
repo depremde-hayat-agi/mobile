@@ -46,8 +46,6 @@ public class P2PConnections {
             Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
             p2pListener.newMessageArrived("connection accepted with " + endpointId + " \n" );
             endPointIds.add(endpointId);
-
-
         }
 
         @Override
