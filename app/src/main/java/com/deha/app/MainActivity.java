@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -167,9 +166,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 }, 1000);
             }
         }).start();
-
-
-
     }
 
     private void askForLocationPermission(){
