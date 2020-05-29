@@ -1,4 +1,4 @@
-package com.deha.app;
+package com.deha.app.service;
 
 
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.deha.app.MainActivity;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
