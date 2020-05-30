@@ -2,12 +2,15 @@ package com.deha.app.service;
 
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.deha.app.App;
 import com.deha.app.MainActivity;
+import com.deha.app.di.DI;
 import com.deha.app.model.MeshMessageModel;
 import com.deha.app.model.RequestModel;
 import com.deha.app.model.ResponseInterface;
@@ -27,8 +30,10 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class P2PConnections {
@@ -40,20 +45,20 @@ public class P2PConnections {
 
     private Set<String> endPointIds;
     private Context context;
-    private P2PListener p2pListener;
+    private List<P2PListener> logListeners = new ArrayList<>();
     private MeshMessageModel meshMessageModel;
     private HttpService httpService;
     private boolean lastListSentToServer = false;
 
-    public P2PConnections(Context context, P2PListener p2pListener) {
+    public P2PConnections() {
         this.endPointIds = new HashSet<>();
-        this.context = context;
-        this.p2pListener = p2pListener;
+        this.context = App.getContext();
         this.meshMessageModel = new MeshMessageModel(
                 new HashMap<>(),
                 new HashMap<>()
         );
-        this.httpService = new HttpService();
+        this.httpService = DI.getHttpService();
+        startAdvertising();
     }
 
     public interface P2PListener{
@@ -64,47 +69,47 @@ public class P2PConnections {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
             Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
-            p2pListener.log(LOG_CONNECTION_TAG, "connection accepted with " + endpointId + " \n" );
+            log(LOG_CONNECTION_TAG, "connection accepted with " + endpointId + "(" + Build.MODEL + ")" + " \n" );
             endPointIds.add(endpointId);
             sendMessageToSpecific(endpointId, meshMessageModel.toJson());
         }
 
         @Override
         public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution connectionResolution) {
-            p2pListener.log(LOG_CONNECTION_TAG, "onConnectionResult " + endpointId +  " " +
+            log(LOG_CONNECTION_TAG, "onConnectionResult " + endpointId + "(" + Build.MODEL + ")" +  " " +
                     connectionResolution.getStatus() + " \n" );
         }
         @Override
         public void onDisconnected(@NonNull String endpointId) {
             endPointIds.remove(endpointId);
-            p2pListener.log(LOG_CONNECTION_TAG, "connection disconnected with " + endpointId + " \n" );
+            log(LOG_CONNECTION_TAG, "connection disconnected with " + endpointId + "(" + Build.MODEL + ")" + " \n" );
         }
     };
 
     private EndpointDiscoveryCallback endpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
         public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
-            p2pListener.log(LOG_CONNECTION_TAG, "endpoint found id: " + endpointId + " \n" );
+            log(LOG_CONNECTION_TAG, "endpoint found id: " + endpointId + "(" + Build.MODEL + ")" + " \n" );
             if(MainActivity.user.getId().compareTo(discoveredEndpointInfo.getEndpointName()) < 0){
                 if(!endPointIds.contains(endpointId)) {
                     requestConnection(endpointId);
                 }
                 else{
-                    p2pListener.log(LOG_CONNECTION_TAG, "already has connection with  " + endpointId + " \n" );
+                    log(LOG_CONNECTION_TAG, "already has connection with  " + endpointId + "(" + Build.MODEL + ")" + " \n" );
                 }
             }
         }
 
         @Override
         public void onEndpointLost(@NonNull String endpointId) {
-            p2pListener.log(LOG_CONNECTION_TAG, "endpoint lost id: " + endpointId + " \n" );
+            log(LOG_CONNECTION_TAG, "endpoint lost id: " + endpointId + "(" + Build.MODEL + ")" + " \n" );
         }
     };
 
     private PayloadCallback payloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
-            p2pListener.log(LOG_CONNECTION_TAG, "payload received from : " + endpointId + "\n " + new String(payload.asBytes()) + "  \n" );
+            log(LOG_CONNECTION_TAG, "payload received from : " + endpointId + "(" + Build.MODEL + ")" + "\n " + new String(payload.asBytes()) + "  \n" );
             boolean changed = meshMessageModel.updateMaps(MeshMessageModel.fromJson(new String(payload.asBytes())));
             if(changed){
                 performListChangedActions();
@@ -125,11 +130,17 @@ public class P2PConnections {
                         MainActivity.user.getId(), SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
-                            p2pListener.log(LOG_CONNECTION_TAG, "advertising started \n" );
+                            log(LOG_CONNECTION_TAG, "advertising started \n" );
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startDiscovery();
+                                }
+                            }, 2000);
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
-                            p2pListener.log(LOG_CONNECTION_TAG, "advertising failed \n" );
+                            log(LOG_CONNECTION_TAG, "advertising failed \n" );
                         });
     }
 
@@ -140,11 +151,11 @@ public class P2PConnections {
                 .startDiscovery(SERVICE_ID, endpointDiscoveryCallback, discoveryOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
-                            p2pListener.log(LOG_CONNECTION_TAG, "discovery started \n" );
+                            log(LOG_CONNECTION_TAG, "discovery started \n" );
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
-                            p2pListener.log(LOG_CONNECTION_TAG, "discovery failed \n" );
+                            log(LOG_CONNECTION_TAG, "discovery failed \n" );
                         });
     }
 
@@ -153,17 +164,17 @@ public class P2PConnections {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                p2pListener.log(LOG_CONNECTION_TAG, "requestConnection to: " + endpointId + " \n" );
+                log(LOG_CONNECTION_TAG, "requestConnection to: " + endpointId + "(" + Build.MODEL + ")" + " \n" );
                 Nearby.getConnectionsClient(context)
                         .requestConnection(MainActivity.user.getId(), endpointId, connectionLifecycleCallback)
                         .addOnSuccessListener(
                                 (Void unused) -> {
-                                    p2pListener.log(LOG_CONNECTION_TAG, "requestConnection success " + endpointId + " \n " );
+                                    log(LOG_CONNECTION_TAG, "requestConnection success " + endpointId + "(" + Build.MODEL + ")" + "\n " );
                                 })
                         .addOnFailureListener(
                                 (Exception e) -> {
                                     if(!e.getMessage().contains("ALREADY_CONNECTED")){
-                                        p2pListener.log(LOG_CONNECTION_TAG, "requestConnection failed to " + endpointId + " \n "
+                                        log(LOG_CONNECTION_TAG, "requestConnection failed to " + endpointId + "(" + Build.MODEL + ")" + " \n "
                                                + e.getMessage() + " \n");
                                     }
                                 });
@@ -174,14 +185,14 @@ public class P2PConnections {
     public void sendMessage(String message){
         Payload streamPayload = Payload.fromBytes(message.getBytes());
         for(String endpointId: endPointIds){
-            p2pListener.log(LOG_CONNECTION_TAG, "send payload to: " + endpointId + "\n message " + message + " \n" );
+            log(LOG_CONNECTION_TAG, "send payload to: " + endpointId + "(" + Build.MODEL + ")" + "\n message " + message + " \n" );
             Nearby.getConnectionsClient(context).sendPayload(endpointId, streamPayload);
         }
     }
 
     public void sendMessageToSpecific(String endpointId, String message){
         Payload streamPayload = Payload.fromBytes(message.getBytes());
-        p2pListener.log(LOG_CONNECTION_TAG, "send payload to: " + endpointId + " message " + message + " \n" );
+        log(LOG_CONNECTION_TAG, "send payload to: " + endpointId + "(" + Build.MODEL + ")" + " message " + message + " \n" );
         Nearby.getConnectionsClient(context).sendPayload(endpointId, streamPayload);
     }
 
@@ -210,14 +221,14 @@ public class P2PConnections {
         sendToServer();
 
         for(UserModel model: meshMessageModel.getHelpMap().values()){
-            p2pListener.log(LOG_NEW_PERSON_TAG, "Help " + model.getName() + " \n");
+            log(LOG_NEW_PERSON_TAG, "Help " + model.getName() + " \n");
         }
 
         for(UserModel model: meshMessageModel.getiAmOkayMap().values()){
-            p2pListener.log(LOG_NEW_PERSON_TAG, "OK " + model.getName() + "\n");
+            log(LOG_NEW_PERSON_TAG, "OK " + model.getName() + "\n");
         }
 
-        p2pListener.log(LOG_NEW_PERSON_TAG, " \n");
+        log(LOG_NEW_PERSON_TAG, " \n");
     }
 
     private void sendToServer(){
@@ -232,13 +243,13 @@ public class P2PConnections {
             public void onSuccess(ResponseModel response) {
                 lastListSentToServer = true;
                 for(UserModel model: meshMessageModel.getHelpMap().values()){
-                    Log.d("DEHA Server", "Help " + model.getName() + " is sent to server");
+                    log("DEHA Server", "Help " + model.getName() + " is sent to server");
                 }
                 for(UserModel model: meshMessageModel.getiAmOkayMap().values()){
-                    Log.d("DEHA Server","OK " + model.getName() + " is sent to server");
+                    log("DEHA Server","OK " + model.getName() + " is sent to server");
                 }
 
-                Log.d("DEHA Server","------------------------------------------------");
+                log("DEHA Server","------------------------------------------------");
             }
 
             @Override
@@ -251,5 +262,20 @@ public class P2PConnections {
     public enum BroadcastType{
         HELP,
         I_AM_OKAY
+    }
+    
+    private void log(String tag, String message) {
+        Log.d(tag, message);
+        for (P2PListener logListener : logListeners) {
+            logListener.log(tag, message);
+        }
+    }
+
+    public void addListener(P2PListener listener) {
+        logListeners.add(listener);
+    }
+
+    public void removeListener(P2PListener listener) {
+        logListeners.remove(listener);
     }
 }

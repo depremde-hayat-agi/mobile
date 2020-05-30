@@ -1,30 +1,37 @@
 package com.deha.app;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import android.Manifest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.deha.app.databinding.ActivityMainBinding;
+import com.deha.app.di.DI;
 import com.deha.app.fragments.BroadcastMessageFragment;
 import com.deha.app.fragments.DiscoverMapFragment;
 import com.deha.app.fragments.HouseLocationFragment;
 import com.deha.app.model.RequestModel;
 import com.deha.app.model.UserModel;
+import com.deha.app.service.P2PConnections;
 import com.deha.app.utils.FragmentUtils;
 import com.deha.app.utils.LocalStorageService;
 import com.deha.app.utils.Utils;
+import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -48,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
     binding.setLifecycleOwner(this);
 
+    Toolbar toolbar = binding.toolbar;
+    setSupportActionBar(toolbar);
+
     LocalStorageService localStorageService = new LocalStorageService(getSharedPreferences(getPackageName(), MODE_PRIVATE));
     if (localStorageService.getUser() == null) {
         UserModel userModel = new UserModel(
@@ -66,6 +76,45 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     user = localStorageService.getUser();
 
     checkPermissions();
+    setDrawer();
+  }
+
+  private void setDrawer() {
+    DrawerLayout drawer = binding.drawerLayout;
+    NavigationView navigationView = binding.navView;
+
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setDisplayHomeAsUpEnabled(true);
+
+    ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawer, binding.toolbar, R.string.nav_app_bar_open_drawer_description, R.string.navigation_drawer_close) {
+      public void onDrawerClosed(View view)
+      {
+        supportInvalidateOptionsMenu();
+        //drawerOpened = false;
+      }
+
+      public void onDrawerOpened(View drawerView)
+      {
+        supportInvalidateOptionsMenu();
+        //drawerOpened = true;
+      }
+    };
+
+    drawerToggle.setDrawerIndicatorEnabled(true);
+    drawer.setDrawerListener(drawerToggle);
+    drawerToggle.syncState();
+
+    final TextView textView = binding.logView;
+    final ScrollView scrollView = binding.logScroll;
+    final String[] logs = {""};
+    DI.getP2pConnections().addListener(new P2PConnections.P2PListener() {
+      @Override
+      public void log(String tag, String message) {
+        logs[0] = logs[0] + "\n" + tag + ": " + message;
+        textView.setText(logs[0]);
+        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+      }
+    });
   }
 
   private void checkPermissions() {
