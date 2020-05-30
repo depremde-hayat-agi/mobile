@@ -1,13 +1,12 @@
 package com.deha.app.fragments;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
@@ -15,8 +14,6 @@ import com.deha.app.R;
 import com.deha.app.databinding.FragmentCreateUserBinding;
 import com.deha.app.di.DI;
 import com.deha.app.model.UserModel;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.UUID;
 
@@ -66,17 +63,15 @@ public class CreateUserFragment extends Fragment {
 
         if (valid) {
           progressDialog = ProgressDialog.show(getContext(), "Yükleniyor", "");
-          DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-              DI.getLocalStorageService().setUser(new UserModel(UUID.randomUUID().toString(), binding.nameField.getText().toString(), binding.phoneField.getText().toString(), location.getLatitude(), location.getLongitude(), 0, ""));
-              createUserInterface.userCreated();
-            }
-          }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+          DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
+            DI.getLocalStorageService().setUser(new UserModel(UUID.randomUUID().toString(), binding.nameField.getText().toString(), binding.phoneField.getText().toString(), location.getLatitude(), location.getLongitude(), 0, ""));
+            progressDialog.dismiss();
+            createUserInterface.userCreated();
+          }).addOnFailureListener(e -> {
+            progressDialog.dismiss();
+            new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarlarının açık olduğundan emin olun").setPositiveButton("Tamam", (dialog, which) -> {
 
-            }
+            }).show();
           });
         }
       }

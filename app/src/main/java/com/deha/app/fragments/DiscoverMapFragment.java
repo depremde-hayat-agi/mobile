@@ -18,10 +18,8 @@ import com.deha.app.MainActivity;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentDiscoverMapBinding;
 import com.deha.app.di.DI;
-import com.deha.app.model.MeshMessageModel;
 import com.deha.app.model.RescueModel;
 import com.deha.app.model.UserModel;
-import com.deha.app.service.BroadcastType;
 import com.deha.app.service.P2PConnections;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
@@ -64,7 +62,6 @@ public class DiscoverMapFragment extends Fragment {
   private Style style;
   private MarkerViewManager markerViewManager;
   private List<Marker> markerList = new ArrayList<>();
-  private DiscoverMapInterface discoverMapInterface;
 
   public static DiscoverMapFragment newInstance() {
     DiscoverMapFragment fragment = new DiscoverMapFragment();
@@ -106,20 +103,29 @@ public class DiscoverMapFragment extends Fragment {
 
   private void addMessageListener() {
     markerViewManager = new MarkerViewManager(mapView, map);
-    DI.getP2pConnections().addMessageListener(new P2PConnections.MessageUpdatedListener() {
-      @Override
-      public void onMessageUpdated(MeshMessageModel model) {
-        for (Marker marker : markerList) {
-          marker.remove();
-        }
+    DI.getP2pConnections().addMessageListener(model -> {
+      for (Marker marker : markerList) {
+        marker.remove();
+      }
 
-        for (UserModel user : model.getHelpMap().values()) {
-          markerList.add(addUserMarker(user, R.drawable.help));
-        }
+      for (UserModel user : model.getHelpMap().values()) {
+        markerList.add(addUserMarker(user, R.drawable.help));
+      }
 
-        for (RescueModel value : model.getRescueMap().values()) {
-          markerList.add(addRescueMarker(value));
-        }
+      for (RescueModel value : model.getRescueMap().values()) {
+        markerList.add(addRescueMarker(value));
+      }
+
+      if (model.getHelpMap().containsValue(DI.getLocalStorageService().getUser())) {
+        binding.buttonHelp.hide();
+      } else {
+        binding.buttonHelp.show();
+      }
+
+      if (model.getiAmOkayMap().containsValue(DI.getLocalStorageService().getUser())) {
+        binding.buttonSafe.setVisibility(View.INVISIBLE);
+      } else {
+        binding.buttonSafe.setVisibility(View.VISIBLE);
       }
     });
   }
@@ -195,11 +201,26 @@ public class DiscoverMapFragment extends Fragment {
   }
 
   private void setActions() {
+    binding.buttonSafe.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("Güvende olduğunuzu bildirmek ister misiniz?")
+            .setPositiveButton("Evet", (dialog, id) -> {
+              sendStatus(P2PConnections.BroadcastType.I_AM_OKAY);
+            })
+            .setNegativeButton("Hayır", (dialog, id) -> {
+            });
+        // Create the AlertDialog object and return it
+        builder.create().show();
+      }
+    });
+
     binding.buttonHelp.setOnClickListener(v -> {
-      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
       builder.setMessage("Yardım isteği göndermek ister misiniz?")
           .setPositiveButton("Evet", (dialog, id) -> {
-            DI.getP2pConnections().addMyselfToMap(BroadcastType.HELP);
+            sendStatus(P2PConnections.BroadcastType.HELP);
           })
           .setNegativeButton("Hayır", (dialog, id) -> {
           });
@@ -207,25 +228,29 @@ public class DiscoverMapFragment extends Fragment {
       builder.create().show();
 
     });
+  }
 
-    binding.buttonSafe.setOnClickListener(v -> {
-      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-      builder.setMessage("Güvendeyim mesajını göndermek ister misiniz?")
-              .setPositiveButton("Evet", (dialog, id) -> {
-                DI.getP2pConnections().addMyselfToMap(BroadcastType.I_AM_OKAY);
-              })
-              .setNegativeButton("Hayır", (dialog, id) -> {
-              });
-      // Create the AlertDialog object and return it
-      builder.create().show();
+  private void showSuccessAlert() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    builder.setMessage("Durum bilginiz yaşam ağına gönderildi.")
+        .setPositiveButton("Tamam", (dialog, id) -> {
+        });
+    // Create the AlertDialog object and return it
+    builder.create().show();
+  }
 
-    });
-
-    binding.buttonSearch.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        discoverMapInterface.navigateToSearchFragment();
+  private void sendStatus(P2PConnections.BroadcastType type) {
+    DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
+      if (location == null) {
+        new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarının açık olduğundan emin olun").setPositiveButton("Tekrar Dene", (dialog, which) -> getLocation()).show();
+        return;
       }
+      UserModel me = DI.getLocalStorageService().getUser();
+      me.setLatitude(location.getLatitude());
+      me.setLongitude(location.getLongitude());
+      DI.getLocalStorageService().setUser(me);
+      DI.getP2pConnections().addMyselfToMap(type);
+      showSuccessAlert();
     });
   }
 
@@ -233,15 +258,23 @@ public class DiscoverMapFragment extends Fragment {
     final Handler handler = new Handler();
     handler.post(() -> {
       showMyLocation(style);
-      DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
-        CameraPosition position = new CameraPosition.Builder()
-            .target(new LatLng(location.getLatitude(), location.getLongitude()))
-            .zoom(15)
-            .build();
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
-      });
+      getLocation();
       showTooltip();
       hideProgress();
+    });
+  }
+
+  private void getLocation() {
+    DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
+      if (location == null) {
+        new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarının açık olduğundan emin olun").setPositiveButton("Tekrar Dene", (dialog, which) -> getLocation()).show();
+        return;
+      }
+      CameraPosition position = new CameraPosition.Builder()
+          .target(new LatLng(location.getLatitude(), location.getLongitude()))
+          .zoom(15)
+          .build();
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
     });
   }
 
@@ -321,13 +354,5 @@ public class DiscoverMapFragment extends Fragment {
     markerViewManager.onDestroy();
     mapView.onDestroy();
     super.onDestroyView();
-  }
-
-  public void setDiscoverMapInterface(DiscoverMapInterface discoverMapInterface) {
-    this.discoverMapInterface = discoverMapInterface;
-  }
-
-  public interface DiscoverMapInterface{
-    void navigateToSearchFragment();
   }
 }
