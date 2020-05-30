@@ -28,7 +28,7 @@ public class MeshMessageModel {
 
       UserModel updateModel = updateInfoMap.get(key);
       UserModel mapModel = map.get(key);
-      UserModel otherMapModel = map.get(otherMap);
+      UserModel otherMapModel = otherMap.get(key);
 
       if(mapModel == null || mapModel.getLastTimestamp().compareTo(updateModel.getLastTimestamp()) < 0){
         changed = true;
