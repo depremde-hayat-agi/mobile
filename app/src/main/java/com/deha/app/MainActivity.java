@@ -20,22 +20,19 @@ import androidx.fragment.app.FragmentManager;
 import com.deha.app.databinding.ActivityMainBinding;
 import com.deha.app.di.DI;
 import com.deha.app.fragments.BroadcastMessageFragment;
+import com.deha.app.fragments.CreateUserFragment;
 import com.deha.app.fragments.DiscoverMapFragment;
 import com.deha.app.fragments.HouseLocationFragment;
-import com.deha.app.model.RequestModel;
 import com.deha.app.model.UserModel;
 import com.deha.app.utils.FragmentUtils;
-import com.deha.app.utils.LocalStorageService;
-import com.deha.app.utils.Utils;
 
-import java.util.HashMap;
 import java.util.List;
 
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks, CreateUserFragment.CreateUserInterface {
 
   public static final int PERMISSION_REQUEST_CODE = 11;
   public static final String DEHA_NEEDS_LOC_PERM = "DeHA'nın çalışabilmek için konum, medya ve rehber erişimine ihtiyacı var.";
@@ -102,25 +99,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
   }
 
   private void checkUser() {
-    LocalStorageService localStorageService = DI.getLocalStorageService();
-    if (localStorageService.getUser() == null) {
-      UserModel userModel = new UserModel(
-          Utils.getUuid(),
-          "Miraç Aknar",
-          "+905056486804",
-          11,
-          22,
-          1,
-          "Hiç fena değil"
-      );
-      localStorageService.setUser(userModel);
-      user = localStorageService.getUser();
-
+    if (DI.getLocalStorageService().getUser() == null) {
+      navigateToCreateUserFragment();
     } else {
-      user = localStorageService.getUser();
-      startMesh();
-      navigateToDiscoverMapFragment();
+      fetchUserAndStartMesh();
     }
+  }
+
+  private void fetchUserAndStartMesh() {
+    user = DI.getLocalStorageService().getUser();
+    startMesh();
+    navigateToDiscoverMapFragment();
   }
 
   @Override
@@ -146,15 +135,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
   public void navigateToDiscoverMapFragment() {
     binding.progress.setVisibility(View.GONE);
-    HashMap<String, UserModel> iAmOkayMap = new HashMap<>();
-    HashMap<String, UserModel> helpMap = new HashMap<>();
-    helpMap.put("1", new UserModel("1", "akbas", "+905554443322", 41.052230, 29.023993, 1, ""));
-    helpMap.put("2", new UserModel("2", "akbas2", "+905554443322", 41.047230, 29.021993, 1, ""));
-    helpMap.put("3", new UserModel("3", "akbas3", "+905554443322", 41.056230, 29.027993, 1, ""));
-    helpMap.put("4", new UserModel("4", "akbas4", "+905554443322", 41.051230, 29.019993, 1, ""));
-    RequestModel requestModel = new RequestModel("0", 39.9234809, 32.8197219, helpMap, iAmOkayMap);
     FragmentUtils.replaceFragment(getSupportFragmentManager(),
-        DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");
+        DiscoverMapFragment.newInstance(), R.id.container, "discovermap");
+  }
+
+  public void navigateToCreateUserFragment() {
+    binding.progress.setVisibility(View.GONE);
+    FragmentUtils.replaceFragment(getSupportFragmentManager(),
+        CreateUserFragment.newInstance(), R.id.container, null);
   }
 
   @Override
@@ -228,6 +216,19 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     EasyPermissions.requestPermissions(this, DEHA_NEEDS_LOC_PERM,
         PERMISSION_REQUEST_CODE, permissions);
 
+  }
+
+  @Override
+  public void onAttachFragment(Fragment fragment) {
+    if (fragment instanceof CreateUserFragment) {
+      CreateUserFragment createUserFragment = (CreateUserFragment) fragment;
+      createUserFragment.setCreateUserInterface(this);
+    }
+  }
+
+  @Override
+  public void userCreated() {
+    fetchUserAndStartMesh();
   }
 }
 

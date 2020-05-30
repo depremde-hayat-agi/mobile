@@ -1,7 +1,6 @@
 package com.deha.app.fragments;
 
 import android.app.ProgressDialog;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,14 +19,9 @@ import com.deha.app.R;
 import com.deha.app.databinding.FragmentDiscoverMapBinding;
 import com.deha.app.di.DI;
 import com.deha.app.model.MeshMessageModel;
-import com.deha.app.model.RequestModel;
 import com.deha.app.model.RescueModel;
 import com.deha.app.model.UserModel;
 import com.deha.app.service.P2PConnections;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -59,16 +53,10 @@ import com.tomergoldst.tooltips.ToolTipsManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallback */{
-
-  public static final String MAP_DATA_KEY = "HAS_SAVED_LOC";
-  public static final String TAG = "mappage";
+public class DiscoverMapFragment extends Fragment {
 
   private FragmentDiscoverMapBinding binding;
   private ProgressDialog progressDialog;
-
-  private FusedLocationProviderClient fusedLocationClient;
-  private LocationCallback locationCallback;
 
   private MapboxMap map;
   private MapView mapView;
@@ -76,16 +64,8 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
   private MarkerViewManager markerViewManager;
   private List<Marker> markerList = new ArrayList<>();
 
-  private RequestModel data;
-
-  public static DiscoverMapFragment newInstance(String data) {
+  public static DiscoverMapFragment newInstance() {
     DiscoverMapFragment fragment = new DiscoverMapFragment();
-    Bundle args = new Bundle();
-    if (data != null) {
-      args.putString(MAP_DATA_KEY, data);
-    }
-
-    fragment.setArguments(args);
     return fragment;
   }
 
@@ -94,9 +74,6 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
     Mapbox.getInstance(getContext(), "sk.eyJ1IjoiaGFsbG9nYSIsImEiOiJja2FzYm51enEwZG9xMnptbzc5aW54bmYxIn0.g7HZ3Ghy841If8ohc31WbA");
-    final String dataString = getArguments().getString(MAP_DATA_KEY);
-    data = RequestModel.fromJson(dataString);
-    fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
   }
 
   @Nullable
@@ -233,15 +210,12 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
     final Handler handler = new Handler();
     handler.post(() -> {
       showMyLocation(style);
-      fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-        @Override
-        public void onSuccess(Location location) {
-          CameraPosition position = new CameraPosition.Builder()
-              .target(new LatLng(location.getLatitude(), location.getLongitude()))
-              .zoom(15)
-              .build();
-          map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
-        }
+      DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
+        CameraPosition position = new CameraPosition.Builder()
+            .target(new LatLng(location.getLatitude(), location.getLongitude()))
+            .zoom(15)
+            .build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
       });
       showTooltip();
       hideProgress();
