@@ -22,7 +22,9 @@ import com.deha.app.utils.LocalStorageService;
 import com.deha.app.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
   public static final int PERMISSION_REQUEST_CODE = 11;
   public static final String DEHA_NEEDS_LOC_PERM = "DeHA'nın çalışabilmek için konum, medya ve rehber erişimine ihtiyacı var.";
-  public static String userId;
+  public static UserModel user;
 
   private boolean isSettingsTapped = false;
   private ActivityMainBinding binding;
@@ -47,11 +49,21 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     binding.setLifecycleOwner(this);
 
     LocalStorageService localStorageService = new LocalStorageService(getSharedPreferences(getPackageName(), MODE_PRIVATE));
-    if (localStorageService.getUserId() == null) {
-      localStorageService.setUserId(Utils.getUuid());
+    if (localStorageService.getUser() == null) {
+        UserModel userModel = new UserModel(
+                Utils.getUuid(),
+                "Miraç Aknar",
+                "+905056486804",
+                11,
+                22,
+                1,
+                "Hiç fena değil"
+        );
+
+        localStorageService.setUser(userModel);
     }
 
-    userId = localStorageService.getUserId();
+    user = localStorageService.getUser();
 
     checkPermissions();
   }
@@ -87,12 +99,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
   public void navigateToDiscoverMapFragment() {
     binding.progress.setVisibility(View.GONE);
-    List<UserModel> users = new ArrayList<>();
-    users.add(new UserModel("1", "akbas", 41.052230, 29.023993, 1));
-    users.add(new UserModel("2", "akbas2", 41.047230, 29.021993, 1));
-    users.add(new UserModel("3", "akbas3", 41.056230, 29.027993, 1));
-    users.add(new UserModel("4", "akbas4", 41.051230, 29.019993, 1));
-    RequestModel requestModel = new RequestModel("0", 39.9244809, 32.8177219, users);
+    HashMap<String, UserModel> iAmOkayMap = new HashMap<>();
+    HashMap<String, UserModel> helpMap = new HashMap<>();
+    iAmOkayMap.put("1", new UserModel("1", "akbas", "+905554443322", 39.9209483, 32.8277882, 1, ""));
+    iAmOkayMap.put("2", new UserModel("2", "akbas2", "+905554443322",39.9219483, 32.8277882, 1, ""));
+    helpMap.put("3", new UserModel("3", "akbas3", "+905554443322",39.9229483, 32.8277882, 1, ""));
+    helpMap.put("4", new UserModel("4", "akbas4", "+905554443322",39.9239483, 32.8277882, 1, ""));
+    RequestModel requestModel = new RequestModel("0",39.9234809, 32.8197219, helpMap, iAmOkayMap);
     FragmentUtils.replaceFragment(getSupportFragmentManager(),
         DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");
   }

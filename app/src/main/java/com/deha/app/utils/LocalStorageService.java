@@ -2,29 +2,29 @@ package com.deha.app.utils;
 
 import android.content.SharedPreferences;
 
+import com.deha.app.model.UserModel;
 import com.google.android.gms.maps.model.LatLng;
 
 public class LocalStorageService {
 
-    public static final String USER_ID_KEY = "USER_ID";
+    public static final String USER_KEY = "USER";
     public static final String LOCATION_KEY = "LOCATION";
 
     private SharedPreferences sharedPreferences;
-
 
     public LocalStorageService(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public void setUserId(String userId){
-        saveString(USER_ID_KEY, userId);
+    public void setUser(UserModel user){
+        saveString(USER_KEY, user.toJson());
     }
 
-    public String getUserId(){
-        if(getString(USER_ID_KEY).equals("")){
+    public UserModel getUser(){
+        if(getString(USER_KEY).equals("")){
             return null;
         }
-        return getString(USER_ID_KEY);
+        return UserModel.fromJson(getString(USER_KEY));
     }
 
     public void setLocation(LatLng latLng){
