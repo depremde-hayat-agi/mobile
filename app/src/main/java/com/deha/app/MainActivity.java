@@ -101,10 +101,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     binding.progress.setVisibility(View.GONE);
     HashMap<String, UserModel> iAmOkayMap = new HashMap<>();
     HashMap<String, UserModel> helpMap = new HashMap<>();
-    iAmOkayMap.put("1", new UserModel("1", "akbas", "+905554443322", 39.9209483, 32.8277882, 1, ""));
-    iAmOkayMap.put("2", new UserModel("2", "akbas2", "+905554443322",39.9219483, 32.8277882, 1, ""));
-    helpMap.put("3", new UserModel("3", "akbas3", "+905554443322",39.9229483, 32.8277882, 1, ""));
-    helpMap.put("4", new UserModel("4", "akbas4", "+905554443322",39.9239483, 32.8277882, 1, ""));
+    helpMap.put("1", new UserModel("1", "akbas", "+905554443322", 41.052230, 29.023993, 1, ""));
+    helpMap.put("2", new UserModel("2", "akbas2", "+905554443322",41.047230, 29.021993, 1, ""));
+    helpMap.put("3", new UserModel("3", "akbas3", "+905554443322",41.056230, 29.027993, 1, ""));
+    helpMap.put("4", new UserModel("4", "akbas4", "+905554443322",41.051230, 29.019993, 1, ""));
     RequestModel requestModel = new RequestModel("0",39.9234809, 32.8197219, helpMap, iAmOkayMap);
     FragmentUtils.replaceFragment(getSupportFragmentManager(),
         DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");

@@ -183,18 +183,18 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
 
   private void hideProgress() {
     final Handler handler = new Handler(Looper.getMainLooper());
-//    handler.post(()-> progressDialog.dismiss());
+    handler.post(()-> progressDialog.dismiss());
   }
 
   private void setMarkers() {
     markerViewManager = new MarkerViewManager(mapView, map);
-    UserModel help = data.getPositiveList().get(0);
+    UserModel help = data.getHelpMap().get("1");
     addMarker(help,R.drawable.help);
-    UserModel help2 = data.getPositiveList().get(1);
+    UserModel help2 = data.getHelpMap().get("2");
     addMarker(help2, R.drawable.help);
-    UserModel med = data.getPositiveList().get(2);
+    UserModel med = data.getHelpMap().get("3");
     addMarker(med, R.drawable.medical);
-    UserModel wifi = data.getPositiveList().get(3);
+    UserModel wifi = data.getHelpMap().get("4");
     addMarker(wifi, R.drawable.wifi);
   }
 
