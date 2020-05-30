@@ -26,6 +26,7 @@ import com.deha.app.fragments.BroadcastMessageFragment;
 import com.deha.app.fragments.CreateUserFragment;
 import com.deha.app.fragments.DiscoverMapFragment;
 import com.deha.app.fragments.HouseLocationFragment;
+import com.deha.app.fragments.searchpeople.SearchPeopleFragment;
 import com.deha.app.model.UserModel;
 import com.deha.app.utils.FragmentUtils;
 
@@ -35,7 +36,7 @@ import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks, CreateUserFragment.CreateUserInterface {
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks, CreateUserFragment.CreateUserInterface, DiscoverMapFragment.DiscoverMapInterface {
 
   public static final int PERMISSION_REQUEST_CODE = 11;
   public static final String DEHA_NEEDS_LOC_PERM = "DeHA'nın çalışabilmek için konum, medya ve rehber erişimine ihtiyacı var.";
@@ -143,6 +144,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         HouseLocationFragment.newInstance(false, null), R.id.container, "householdinfo");
   }
 
+  public void navigateToSearchPeopleFragment() {
+    binding.progress.setVisibility(View.GONE);
+    FragmentUtils.replaceFragment(getSupportFragmentManager(),
+            SearchPeopleFragment.newInstance(), R.id.container, "searchpeople");
+  }
+
+
   public void navigateToDiscoverMapFragment() {
     binding.progress.setVisibility(View.GONE);
     FragmentUtils.replaceFragment(getSupportFragmentManager(),
@@ -234,11 +242,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
       CreateUserFragment createUserFragment = (CreateUserFragment) fragment;
       createUserFragment.setCreateUserInterface(this);
     }
+    else if(fragment instanceof DiscoverMapFragment){
+      DiscoverMapFragment discoverMapFragment = (DiscoverMapFragment) fragment;
+      discoverMapFragment.setDiscoverMapInterface(this);
+    }
   }
 
   @Override
   public void userCreated() {
     fetchUserAndStartMesh();
+  }
+
+  @Override
+  public void navigateToSearchFragment() {
+    navigateToSearchPeopleFragment();
   }
 }
 

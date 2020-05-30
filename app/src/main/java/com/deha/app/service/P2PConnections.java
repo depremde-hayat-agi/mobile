@@ -260,11 +260,6 @@ public class P2PConnections {
             }
         });
     }
-
-    public enum BroadcastType{
-        HELP,
-        I_AM_OKAY
-    }
     
     private void log(String tag, String message) {
         Log.d(tag, message);
@@ -295,5 +290,9 @@ public class P2PConnections {
 
     public interface LogListener{
         void log(String tag, String message);
+    }
+
+    public MeshMessageModel getMeshMessageModel() {
+        return meshMessageModel;
     }
 }

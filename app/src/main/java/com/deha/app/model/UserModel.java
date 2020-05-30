@@ -14,6 +14,17 @@ public class UserModel {
   private String message;
   private String lastTimestamp;
 
+  public UserModel(UserModel model) {
+    this.id = model.getId();
+    this.name = model.getName();
+    this.mobilePhone = model.getMobilePhone();
+    this.latitude = model.getLatitude();
+    this.longitude = model.getLongitude();
+    this.order = model.getOrder();
+    this.message = model.getMessage();
+  }
+
+
   public UserModel(String id, String name, String mobilePhone, double latitude, double longitude, int order, String message) {
     this.id = id;
     this.name = name;
