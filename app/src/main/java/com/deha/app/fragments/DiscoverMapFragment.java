@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
+import com.deha.app.MainActivity;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentDiscoverMapBinding;
 import com.deha.app.model.RequestModel;
@@ -39,13 +41,27 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionError;
+import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 import com.mapbox.mapboxsdk.plugins.markerview.MarkerViewManager;
+import com.mapbox.mapboxsdk.plugins.offline.model.NotificationOptions;
+import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
+import com.mapbox.mapboxsdk.plugins.offline.offline.OfflineDownloadService;
+import com.mapbox.mapboxsdk.plugins.offline.offline.OfflinePlugin;
+import com.mapbox.mapboxsdk.plugins.offline.utils.OfflineUtils;
 import com.tomergoldst.tooltips.ToolTip;
 import com.tomergoldst.tooltips.ToolTipsManager;
+
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 
 public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallback */{
 
   public static final String MAP_DATA_KEY = "HAS_SAVED_LOC";
+  public static final String TAG = "mappage";
 
   private FragmentDiscoverMapBinding binding;
   private ProgressDialog progressDialog;
@@ -55,6 +71,7 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
 
   private MapboxMap map;
   private MapView mapView;
+  private Style style;
   private MarkerViewManager markerViewManager;
   private RequestModel data;
 
@@ -96,17 +113,74 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
     mapView.onCreate(savedInstanceState);
     mapView.getMapAsync(mapboxMap -> {
       map = mapboxMap;
-      mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/halloga/ckatmublk3ia81iqhjkdwgpph"), style -> setupMap(style));
+      mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/halloga/ckatmublk3ia81iqhjkdwgpph"), style -> {
+        this.style = style;
+        setupMap();
+        checkOfflineMaps();
+      });
     });
-    setupOfflineMaps();
+  }
+
+  private void checkOfflineMaps() {
+    OfflineManager offlineManager = OfflineManager.getInstance(getContext());
+    offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
+      @Override
+      public void onList(OfflineRegion[] offlineRegions) {
+        if (offlineRegions.length == 0) {
+          setupOfflineMaps();
+        }
+        for (OfflineRegion offlineRegion : offlineRegions) {
+          String metadata = new String(offlineRegion.getMetadata());
+          if (metadata.contains("istanbul")) {
+            offlineRegion.getStatus(new OfflineRegion.OfflineRegionStatusCallback() {
+              @Override
+              public void onStatus(OfflineRegionStatus status) {
+                if (!status.isComplete()) {
+                  offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
+                }
+              }
+
+              @Override
+              public void onError(String error) {
+
+              }
+            });
+          }
+        }
+      }
+
+      @Override
+      public void onError(String error) {
+
+      }
+    });
   }
 
   private void setupOfflineMaps() {
-    OfflineManager offlineManager = OfflineManager.getInstance(getContext());
     LatLngBounds latLngBounds = new LatLngBounds.Builder()
         .include(new LatLng(41.269, 29.3399)) // Northeast
         .include(new LatLng(40.8397, 28.4926)) // Southwest
         .build();
+
+    OfflineTilePyramidRegionDefinition definition = new OfflineTilePyramidRegionDefinition(
+        style.getUri(),
+        latLngBounds,
+        0,
+        15,
+        getContext().getResources().getDisplayMetrics().density);
+
+    NotificationOptions notificationOptions = NotificationOptions.builder(getContext())
+        .smallIconRes(R.mipmap.ic_launcher)
+        .returnActivity(MainActivity.class.getName())
+        .build();
+
+    OfflinePlugin.getInstance(getContext()).startDownload(
+        OfflineDownloadOptions.builder()
+            .definition(definition)
+            .metadata(OfflineUtils.convertRegionName("istanbul"))
+            .notificationOptions(notificationOptions)
+            .build()
+    );
   }
 
   private void showTooltip() {
@@ -131,19 +205,14 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
     });
   }
 
-  private void setupMap(Style style) {
+  private void setupMap() {
     final Handler handler = new Handler();
     handler.post(() -> {
       showMyLocation(style);
-
       fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
         @Override
         public void onSuccess(Location location) {
-          CameraPosition position = new CameraPosition.Builder()
-              .target(new LatLng(location.getLatitude(), location.getLongitude()))
-              .zoom(15)
-              .build();
-          map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
+
         }
       });
 
