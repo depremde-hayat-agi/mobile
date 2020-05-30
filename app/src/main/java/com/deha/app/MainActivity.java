@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     final TextView textView = binding.logView;
     final ScrollView scrollView = binding.logScroll;
     final String[] logs = {""};
-    DI.getP2pConnections().addListener(new P2PConnections.P2PListener() {
+    DI.getP2pConnections().addLogListener(new P2PConnections.P2PListener() {
       @Override
       public void log(String tag, String message) {
         logs[0] = logs[0] + "\n" + tag + ": " + message;

@@ -45,10 +45,10 @@ public class P2PConnections {
 
     private Set<String> endPointIds;
     private Context context;
-    private List<P2PListener> logListeners = new ArrayList<>();
+    private List<LogListener> logListeners = new ArrayList<>();
     private MeshMessageModel meshMessageModel;
     private HttpService httpService;
-    private List<DevicesUpdatedListener> devicesUpdatedListeners = new ArrayList<>();
+    private List<MessageUpdatedListener> devicesUpdatedListeners = new ArrayList<>();
     private boolean lastListSentToServer = false;
 
 
@@ -61,10 +61,6 @@ public class P2PConnections {
         );
         this.httpService = DI.getHttpService();
         startAdvertising();
-    }
-
-    public interface P2PListener{
-        void log(String tag, String message);
     }
 
     private ConnectionLifecycleCallback connectionLifecycleCallback = new ConnectionLifecycleCallback() {
@@ -218,8 +214,8 @@ public class P2PConnections {
     }
 
     private void performListChangedActions(){
-        for (DevicesUpdatedListener listener : devicesUpdatedListeners) {
-            listener.onDevicesUpdated(meshMessageModel);
+        for (MessageUpdatedListener listener : devicesUpdatedListeners) {
+            listener.onMessageUpdated(meshMessageModel);
         }
         sendMessage(meshMessageModel.toJson());
         lastListSentToServer = false;
@@ -271,28 +267,32 @@ public class P2PConnections {
     
     private void log(String tag, String message) {
         Log.d(tag, message);
-        for (P2PListener logListener : logListeners) {
+        for (LogListener logListener : logListeners) {
             logListener.log(tag, message);
         }
     }
 
-    public void addListener(P2PListener listener) {
+    public void addLogListener(LogListener listener) {
         logListeners.add(listener);
     }
 
-    public void removeListener(P2PListener listener) {
+    public void removeLogListener(LogListener listener) {
         logListeners.remove(listener);
     }
 
-    public void addListener(DevicesUpdatedListener listener) {
+    public void addMessageListener(MessageUpdatedListener listener) {
         devicesUpdatedListeners.add(listener);
     }
 
-    public void removeListener(DevicesUpdatedListener listener) {
+    public void removeMessageListener(MessageUpdatedListener listener) {
         devicesUpdatedListeners.remove(listener);
     }
 
-    public interface DevicesUpdatedListener {
-        void onDevicesUpdated(MeshMessageModel model);
+    public interface MessageUpdatedListener {
+        void onMessageUpdated(MeshMessageModel model);
+    }
+
+    public interface LogListener{
+        void log(String tag, String message);
     }
 }
