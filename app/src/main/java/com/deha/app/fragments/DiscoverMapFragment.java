@@ -28,6 +28,8 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
@@ -203,7 +205,11 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
       fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
         @Override
         public void onSuccess(Location location) {
-
+          CameraPosition position = new CameraPosition.Builder()
+              .target(new LatLng(location.getLatitude(), location.getLongitude()))
+              .zoom(15)
+              .build();
+          map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
         }
       });
 
