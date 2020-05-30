@@ -1,5 +1,8 @@
 package com.deha.app.di;
 
+import android.content.Context;
+
+import com.deha.app.service.ContactListService;
 import com.deha.app.App;
 import com.deha.app.service.HttpService;
 import com.deha.app.service.P2PConnections;
@@ -16,12 +19,20 @@ public class DI {
   private static FusedLocationProviderClient fusedLocationClient;
 
 
+  private static ContactListService contactListService;
 
   public static JsonUtils getJsonUtils() {
     if (jsonUtils == null) {
       jsonUtils = new JsonUtils();
     }
     return jsonUtils;
+  }
+
+  public static ContactListService getContactListService(Context context){
+    if (contactListService == null) {
+      contactListService = new ContactListService(context);
+    }
+    return contactListService;
   }
 
   public static HttpService getHttpService() {

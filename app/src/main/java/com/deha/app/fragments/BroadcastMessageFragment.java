@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentBroadcastMessageBinding;
 import com.deha.app.di.DI;
+import com.deha.app.service.BroadcastType;
 import com.deha.app.service.P2PConnections;
 
 public class BroadcastMessageFragment extends Fragment {
@@ -46,14 +47,14 @@ public class BroadcastMessageFragment extends Fragment {
         binding.buttonHelp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                p2pConnections.addMyselfToMap(P2PConnections.BroadcastType.HELP);
+                p2pConnections.addMyselfToMap(BroadcastType.HELP);
             }
         });
 
         binding.buttonOkay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                p2pConnections.addMyselfToMap(P2PConnections.BroadcastType.I_AM_OKAY);
+                p2pConnections.addMyselfToMap(BroadcastType.I_AM_OKAY);
             }
         });
 

@@ -21,6 +21,7 @@ import com.deha.app.di.DI;
 import com.deha.app.model.MeshMessageModel;
 import com.deha.app.model.RescueModel;
 import com.deha.app.model.UserModel;
+import com.deha.app.service.BroadcastType;
 import com.deha.app.service.P2PConnections;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
@@ -63,6 +64,7 @@ public class DiscoverMapFragment extends Fragment {
   private Style style;
   private MarkerViewManager markerViewManager;
   private List<Marker> markerList = new ArrayList<>();
+  private DiscoverMapInterface discoverMapInterface;
 
   public static DiscoverMapFragment newInstance() {
     DiscoverMapFragment fragment = new DiscoverMapFragment();
@@ -197,12 +199,33 @@ public class DiscoverMapFragment extends Fragment {
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
       builder.setMessage("Yardım isteği göndermek ister misiniz?")
           .setPositiveButton("Evet", (dialog, id) -> {
+            DI.getP2pConnections().addMyselfToMap(BroadcastType.HELP);
           })
           .setNegativeButton("Hayır", (dialog, id) -> {
           });
       // Create the AlertDialog object and return it
       builder.create().show();
 
+    });
+
+    binding.buttonSafe.setOnClickListener(v -> {
+      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      builder.setMessage("Güvendeyim mesajını göndermek ister misiniz?")
+              .setPositiveButton("Evet", (dialog, id) -> {
+                DI.getP2pConnections().addMyselfToMap(BroadcastType.I_AM_OKAY);
+              })
+              .setNegativeButton("Hayır", (dialog, id) -> {
+              });
+      // Create the AlertDialog object and return it
+      builder.create().show();
+
+    });
+
+    binding.buttonSearch.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        discoverMapInterface.navigateToSearchFragment();
+      }
     });
   }
 
@@ -298,5 +321,13 @@ public class DiscoverMapFragment extends Fragment {
     markerViewManager.onDestroy();
     mapView.onDestroy();
     super.onDestroyView();
+  }
+
+  public void setDiscoverMapInterface(DiscoverMapInterface discoverMapInterface) {
+    this.discoverMapInterface = discoverMapInterface;
+  }
+
+  public interface DiscoverMapInterface{
+    void navigateToSearchFragment();
   }
 }
