@@ -24,7 +24,6 @@ import com.deha.app.fragments.DiscoverMapFragment;
 import com.deha.app.fragments.HouseLocationFragment;
 import com.deha.app.model.RequestModel;
 import com.deha.app.model.UserModel;
-import com.deha.app.service.P2PConnections;
 import com.deha.app.utils.FragmentUtils;
 import com.deha.app.utils.LocalStorageService;
 import com.deha.app.utils.Utils;
@@ -87,13 +86,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     final TextView textView = binding.logView;
     final ScrollView scrollView = binding.logScroll;
     final String[] logs = {""};
-    DI.getP2pConnections().addLogListener(new P2PConnections.P2PListener() {
-      @Override
-      public void log(String tag, String message) {
-        logs[0] = logs[0] + "\n" + tag + ": " + message;
-        textView.setText(logs[0]);
-        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
-      }
+    DI.getP2pConnections().addLogListener((tag, message) -> {
+      logs[0] = logs[0] + "\n" + tag + ": " + message;
+      textView.setText(logs[0]);
+      scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
     });
   }
 
