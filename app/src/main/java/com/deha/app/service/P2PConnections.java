@@ -57,6 +57,7 @@ public class P2PConnections {
         this.context = App.getContext();
         this.meshMessageModel = new MeshMessageModel(
                 new HashMap<>(),
+                new HashMap<>(),
                 new HashMap<>()
         );
         this.httpService = DI.getHttpService();
@@ -206,7 +207,7 @@ public class P2PConnections {
             newIAmOkayMap.put(MainActivity.user.getId(), MainActivity.user);
         }
 
-        MeshMessageModel newMeshMessageModel = new MeshMessageModel(newHelpMep, newIAmOkayMap);
+        MeshMessageModel newMeshMessageModel = new MeshMessageModel(newHelpMep, newIAmOkayMap, new HashMap<>());
         boolean changed = meshMessageModel.updateMaps(newMeshMessageModel);
         if(changed){
             performListChangedActions();

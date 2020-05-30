@@ -18,8 +18,12 @@ import androidx.fragment.app.Fragment;
 import com.deha.app.MainActivity;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentDiscoverMapBinding;
+import com.deha.app.di.DI;
+import com.deha.app.model.MeshMessageModel;
 import com.deha.app.model.RequestModel;
+import com.deha.app.model.RescueModel;
 import com.deha.app.model.UserModel;
+import com.deha.app.service.P2PConnections;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationServices;
@@ -27,6 +31,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -51,6 +56,9 @@ import com.mapbox.mapboxsdk.plugins.offline.utils.OfflineUtils;
 import com.tomergoldst.tooltips.ToolTip;
 import com.tomergoldst.tooltips.ToolTipsManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallback */{
 
   public static final String MAP_DATA_KEY = "HAS_SAVED_LOC";
@@ -66,6 +74,8 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
   private MapView mapView;
   private Style style;
   private MarkerViewManager markerViewManager;
+  private List<Marker> markerList = new ArrayList<>();
+
   private RequestModel data;
 
   public static DiscoverMapFragment newInstance(String data) {
@@ -108,9 +118,30 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
       map = mapboxMap;
       mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/halloga/ckatmublk3ia81iqhjkdwgpph"), style -> {
         this.style = style;
+        addMessageListener();
         setupMap();
         checkOfflineMaps();
       });
+    });
+  }
+
+  private void addMessageListener() {
+    markerViewManager = new MarkerViewManager(mapView, map);
+    DI.getP2pConnections().addMessageListener(new P2PConnections.MessageUpdatedListener() {
+      @Override
+      public void onMessageUpdated(MeshMessageModel model) {
+        for (Marker marker : markerList) {
+          marker.remove();
+        }
+
+        for (UserModel user : model.getHelpMap().values()) {
+          markerList.add(addUserMarker(user, R.drawable.help));
+        }
+
+        for (RescueModel value : model.getRescueMap().values()) {
+          markerList.add(addRescueMarker(value));
+        }
+      }
     });
   }
 
@@ -212,8 +243,6 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
           map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
         }
       });
-
-      setMarkers();
       showTooltip();
       hideProgress();
     });
@@ -237,22 +266,16 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
     handler.post(()-> progressDialog.dismiss());
   }
 
-  private void setMarkers() {
-    markerViewManager = new MarkerViewManager(mapView, map);
-    UserModel help = data.getHelpMap().get("1");
-    addMarker(help,R.drawable.help);
-    UserModel help2 = data.getHelpMap().get("2");
-    addMarker(help2, R.drawable.help);
-    UserModel med = data.getHelpMap().get("3");
-    addMarker(med, R.drawable.medical);
-    UserModel wifi = data.getHelpMap().get("4");
-    addMarker(wifi, R.drawable.wifi);
-  }
-
-  private void addMarker(UserModel userModel, int iconRes) {
+  private Marker addUserMarker(UserModel userModel, int iconRes) {
     IconFactory iconFactory = IconFactory.getInstance(getContext());
     Icon icon = iconFactory.fromResource(iconRes);
-    map.addMarker(new MarkerOptions().position(new LatLng(userModel.getLatitude(), userModel.getLongitude())).icon(icon));
+    return map.addMarker(new MarkerOptions().position(new LatLng(userModel.getLatitude(), userModel.getLongitude())).icon(icon));
+  }
+
+  private Marker addRescueMarker(RescueModel rescueModel) {
+    IconFactory iconFactory = IconFactory.getInstance(getContext());
+    Icon icon = iconFactory.fromResource(R.drawable.medical);
+    return map.addMarker(new MarkerOptions().position(new LatLng(rescueModel.getLatitude(), rescueModel.getLongitude())).icon(icon));
   }
 
   @Override
