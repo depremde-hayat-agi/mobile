@@ -17,12 +17,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <fragment
-                android:id="@+id/discover_map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
+<!--            <fragment-->
+<!--                android:id="@+id/discover_map"-->
+<!--                android:name="com.google.android.gms.maps.SupportMapFragment"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                tools:context="com.deha.app.MainActivity" />-->
+
+            <com.mapbox.mapboxsdk.maps.MapView
+                android:id="@+id/map_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="com.deha.app.MainActivity" />
+                android:layout_height="match_parent" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/button_help"

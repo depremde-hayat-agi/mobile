@@ -88,11 +88,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
   public void navigateToDiscoverMapFragment() {
     binding.progress.setVisibility(View.GONE);
     List<UserModel> users = new ArrayList<>();
-    users.add(new UserModel("1", "akbas", 39.9209483, 32.8277882, 1));
-    users.add(new UserModel("2", "akbas2", 39.9219483, 32.8277882, 1));
-    users.add(new UserModel("3", "akbas3", 39.9229483, 32.8277882, 1));
-    users.add(new UserModel("4", "akbas4", 39.9239483, 32.8277882, 1));
-    RequestModel requestModel = new RequestModel("0", 39.9234809, 32.8197219, users);
+    users.add(new UserModel("1", "akbas", 41.052230, 29.023993, 1));
+    users.add(new UserModel("2", "akbas2", 41.047230, 29.021993, 1));
+    users.add(new UserModel("3", "akbas3", 41.056230, 29.027993, 1));
+    users.add(new UserModel("4", "akbas4", 41.051230, 29.019993, 1));
+    RequestModel requestModel = new RequestModel("0", 39.9244809, 32.8177219, users);
     FragmentUtils.replaceFragment(getSupportFragmentManager(),
         DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");
   }
