@@ -15,7 +15,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
-import com.deha.app.MainActivity;
 import com.deha.app.R;
 import com.deha.app.databinding.FragmentDiscoverMapBinding;
 import com.deha.app.model.RequestModel;
@@ -27,7 +26,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -39,21 +37,11 @@ import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.markerview.MarkerViewManager;
-import com.mapbox.mapboxsdk.style.sources.VectorSource;
 import com.tomergoldst.tooltips.ToolTip;
 import com.tomergoldst.tooltips.ToolTipsManager;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import flipagram.assetcopylib.AssetCopier;
 
 public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallback */{
 
@@ -68,7 +56,6 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
   private MapboxMap map;
   private MapView mapView;
   private MarkerViewManager markerViewManager;
-//  private MapBoxOfflineTileProvider provider;
   private RequestModel data;
 
   public static DiscoverMapFragment newInstance(String data) {
@@ -99,8 +86,6 @@ public class DiscoverMapFragment extends Fragment /*implements OnMapReadyCallbac
     binding.setLifecycleOwner(this);
 
     mapView = binding.mapView;
-//    SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.discover_map);
-//    mapFrag.getMapAsync(this);
     setActions();
     progressDialog = ProgressDialog.show(getContext(), "Yükleniyor", "Lütfen bekleyiniz...");
     setupMapBox(savedInstanceState);
