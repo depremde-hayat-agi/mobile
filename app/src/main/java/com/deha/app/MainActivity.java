@@ -28,7 +28,6 @@ import com.deha.app.service.P2PConnections;
 import com.deha.app.utils.FragmentUtils;
 import com.deha.app.utils.LocalStorageService;
 import com.deha.app.utils.Utils;
-import com.google.android.material.navigation.NavigationView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,44 +56,23 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     Toolbar toolbar = binding.toolbar;
     setSupportActionBar(toolbar);
-
-    LocalStorageService localStorageService = new LocalStorageService(getSharedPreferences(getPackageName(), MODE_PRIVATE));
-    if (localStorageService.getUser() == null) {
-        UserModel userModel = new UserModel(
-                Utils.getUuid(),
-                "Miraç Aknar",
-                "+905056486804",
-                11,
-                22,
-                1,
-                "Hiç fena değil"
-        );
-
-        localStorageService.setUser(userModel);
-    }
-
-    user = localStorageService.getUser();
-
-    checkPermissions();
     setDrawer();
+    checkPermissions();
   }
 
   private void setDrawer() {
     DrawerLayout drawer = binding.drawerLayout;
-    NavigationView navigationView = binding.navView;
 
     ActionBar actionBar = getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
     ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawer, binding.toolbar, R.string.nav_app_bar_open_drawer_description, R.string.navigation_drawer_close) {
-      public void onDrawerClosed(View view)
-      {
+      public void onDrawerClosed(View view) {
         supportInvalidateOptionsMenu();
         //drawerOpened = false;
       }
 
-      public void onDrawerOpened(View drawerView)
-      {
+      public void onDrawerOpened(View drawerView) {
         supportInvalidateOptionsMenu();
         //drawerOpened = true;
       }
@@ -103,7 +81,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     drawerToggle.setDrawerIndicatorEnabled(true);
     drawer.setDrawerListener(drawerToggle);
     drawerToggle.syncState();
+  }
 
+  private void startMesh() {
     final TextView textView = binding.logView;
     final ScrollView scrollView = binding.logScroll;
     final String[] logs = {""};
@@ -119,9 +99,31 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
   private void checkPermissions() {
     if (EasyPermissions.hasPermissions(this, permissions)) {
-      navigateToDiscoverMapFragment();
+      checkUser();
     } else {
-        askForPermission();
+      askForPermission();
+    }
+  }
+
+  private void checkUser() {
+    LocalStorageService localStorageService = DI.getLocalStorageService();
+    if (localStorageService.getUser() == null) {
+      UserModel userModel = new UserModel(
+          Utils.getUuid(),
+          "Miraç Aknar",
+          "+905056486804",
+          11,
+          22,
+          1,
+          "Hiç fena değil"
+      );
+      localStorageService.setUser(userModel);
+      user = localStorageService.getUser();
+
+    } else {
+      user = localStorageService.getUser();
+      startMesh();
+      navigateToDiscoverMapFragment();
     }
   }
 
@@ -151,10 +153,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     HashMap<String, UserModel> iAmOkayMap = new HashMap<>();
     HashMap<String, UserModel> helpMap = new HashMap<>();
     helpMap.put("1", new UserModel("1", "akbas", "+905554443322", 41.052230, 29.023993, 1, ""));
-    helpMap.put("2", new UserModel("2", "akbas2", "+905554443322",41.047230, 29.021993, 1, ""));
-    helpMap.put("3", new UserModel("3", "akbas3", "+905554443322",41.056230, 29.027993, 1, ""));
-    helpMap.put("4", new UserModel("4", "akbas4", "+905554443322",41.051230, 29.019993, 1, ""));
-    RequestModel requestModel = new RequestModel("0",39.9234809, 32.8197219, helpMap, iAmOkayMap);
+    helpMap.put("2", new UserModel("2", "akbas2", "+905554443322", 41.047230, 29.021993, 1, ""));
+    helpMap.put("3", new UserModel("3", "akbas3", "+905554443322", 41.056230, 29.027993, 1, ""));
+    helpMap.put("4", new UserModel("4", "akbas4", "+905554443322", 41.051230, 29.019993, 1, ""));
+    RequestModel requestModel = new RequestModel("0", 39.9234809, 32.8197219, helpMap, iAmOkayMap);
     FragmentUtils.replaceFragment(getSupportFragmentManager(),
         DiscoverMapFragment.newInstance(requestModel.toJson()), R.id.container, "discovermap");
   }
@@ -200,14 +202,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
               .setTitle("Uyarı").build().show();
         }
       } else {
-          askForPermission();
+        askForPermission();
       }
     }
   }
 
   @Override
   public void onRationaleAccepted(int requestCode) {
-      askForPermission();
+    askForPermission();
   }
 
   @Override
@@ -219,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         handler.postDelayed(new Runnable() {
           @Override
           public void run() {
-              askForPermission();
+            askForPermission();
           }
         }, 1000);
       }

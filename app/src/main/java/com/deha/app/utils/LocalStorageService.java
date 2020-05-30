@@ -2,8 +2,11 @@ package com.deha.app.utils;
 
 import android.content.SharedPreferences;
 
+import com.deha.app.App;
 import com.deha.app.model.UserModel;
 import com.google.android.gms.maps.model.LatLng;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class LocalStorageService {
 
@@ -12,8 +15,8 @@ public class LocalStorageService {
 
     private SharedPreferences sharedPreferences;
 
-    public LocalStorageService(SharedPreferences sharedPreferences) {
-        this.sharedPreferences = sharedPreferences;
+    public LocalStorageService() {
+        this.sharedPreferences = App.getContext().getSharedPreferences(App.getContext().getPackageName(), MODE_PRIVATE);
     }
 
     public void setUser(UserModel user){
