@@ -210,15 +210,23 @@ public class DiscoverMapFragment extends Fragment {
     final Handler handler = new Handler();
     handler.post(() -> {
       showMyLocation(style);
-      DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
-        CameraPosition position = new CameraPosition.Builder()
-            .target(new LatLng(location.getLatitude(), location.getLongitude()))
-            .zoom(15)
-            .build();
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
-      });
+      getLocation();
       showTooltip();
       hideProgress();
+    });
+  }
+
+  private void getLocation() {
+    DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
+      if (location == null) {
+        new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarının açık olduğundan emin olun").setPositiveButton("Tekrar Dene", (dialog, which) -> getLocation()).show();
+        return;
+      }
+      CameraPosition position = new CameraPosition.Builder()
+          .target(new LatLng(location.getLatitude(), location.getLongitude()))
+          .zoom(15)
+          .build();
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
     });
   }
 

@@ -69,7 +69,9 @@ public class CreateUserFragment extends Fragment {
             createUserInterface.userCreated();
           }).addOnFailureListener(e -> {
             progressDialog.dismiss();
-            new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarlarının açık olduğundan emin olun").show();
+            new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarlarının açık olduğundan emin olun").setPositiveButton("Tamam", (dialog, which) -> {
+
+            }).show();
           });
         }
       }
