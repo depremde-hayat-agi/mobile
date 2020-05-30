@@ -48,7 +48,9 @@ public class P2PConnections {
     private List<P2PListener> logListeners = new ArrayList<>();
     private MeshMessageModel meshMessageModel;
     private HttpService httpService;
+    private List<DevicesUpdatedListener> devicesUpdatedListeners = new ArrayList<>();
     private boolean lastListSentToServer = false;
+
 
     public P2PConnections() {
         this.endPointIds = new HashSet<>();
@@ -216,6 +218,9 @@ public class P2PConnections {
     }
 
     private void performListChangedActions(){
+        for (DevicesUpdatedListener listener : devicesUpdatedListeners) {
+            listener.onDevicesUpdated(meshMessageModel);
+        }
         sendMessage(meshMessageModel.toJson());
         lastListSentToServer = false;
         sendToServer();
@@ -277,5 +282,17 @@ public class P2PConnections {
 
     public void removeListener(P2PListener listener) {
         logListeners.remove(listener);
+    }
+
+    public void addListener(DevicesUpdatedListener listener) {
+        devicesUpdatedListeners.add(listener);
+    }
+
+    public void removeListener(DevicesUpdatedListener listener) {
+        devicesUpdatedListeners.remove(listener);
+    }
+
+    public interface DevicesUpdatedListener {
+        void onDevicesUpdated(MeshMessageModel model);
     }
 }
