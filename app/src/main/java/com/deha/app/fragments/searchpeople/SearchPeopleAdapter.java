@@ -25,6 +25,10 @@ public class SearchPeopleAdapter extends RecyclerView.Adapter<SearchPeopleAdapte
         this.userModels = userModels;
     }
 
+    public void setUserModels(List<UserAdapterModel> userModels) {
+        this.userModels = userModels;
+    }
+
     @NonNull
     @Override
     public SearchItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

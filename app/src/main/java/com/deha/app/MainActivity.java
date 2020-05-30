@@ -168,6 +168,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
       finish();
     }
+    else {
+      super.onBackPressed();
+    }
   }
 
   @Override

@@ -20,6 +20,7 @@ import com.deha.app.databinding.FragmentDiscoverMapBinding;
 import com.deha.app.di.DI;
 import com.deha.app.model.RescueModel;
 import com.deha.app.model.UserModel;
+import com.deha.app.service.BroadcastType;
 import com.deha.app.service.P2PConnections;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
@@ -56,6 +57,7 @@ public class DiscoverMapFragment extends Fragment {
 
   private FragmentDiscoverMapBinding binding;
   private ProgressDialog progressDialog;
+  private DiscoverMapInterface discoverMapInterface;
 
   private MapboxMap map;
   private MapView mapView;
@@ -207,7 +209,7 @@ public class DiscoverMapFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage("Güvende olduğunuzu bildirmek ister misiniz?")
             .setPositiveButton("Evet", (dialog, id) -> {
-              sendStatus(P2PConnections.BroadcastType.I_AM_OKAY);
+              sendStatus(BroadcastType.I_AM_OKAY);
             })
             .setNegativeButton("Hayır", (dialog, id) -> {
             });
@@ -220,7 +222,7 @@ public class DiscoverMapFragment extends Fragment {
       AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
       builder.setMessage("Yardım isteği göndermek ister misiniz?")
           .setPositiveButton("Evet", (dialog, id) -> {
-            sendStatus(P2PConnections.BroadcastType.HELP);
+            sendStatus(BroadcastType.HELP);
           })
           .setNegativeButton("Hayır", (dialog, id) -> {
           });
@@ -228,6 +230,13 @@ public class DiscoverMapFragment extends Fragment {
       builder.create().show();
 
     });
+
+      binding.buttonSearch.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View view) {
+              discoverMapInterface.navigateToSearchFragment();
+          }
+      });
   }
 
   private void showSuccessAlert() {
@@ -239,7 +248,7 @@ public class DiscoverMapFragment extends Fragment {
     builder.create().show();
   }
 
-  private void sendStatus(P2PConnections.BroadcastType type) {
+  private void sendStatus(BroadcastType type) {
     DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
       if (location == null) {
         new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarının açık olduğundan emin olun").setPositiveButton("Tekrar Dene", (dialog, which) -> getLocation()).show();
@@ -354,5 +363,13 @@ public class DiscoverMapFragment extends Fragment {
     markerViewManager.onDestroy();
     mapView.onDestroy();
     super.onDestroyView();
+  }
+
+  public void setDiscoverMapInterface(DiscoverMapInterface discoverMapInterface) {
+    this.discoverMapInterface = discoverMapInterface;
+  }
+
+  public interface DiscoverMapInterface{
+    void navigateToSearchFragment();
   }
 }

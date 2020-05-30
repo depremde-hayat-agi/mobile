@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.deha.app.R;
 import com.deha.app.databinding.FragmentSearchPeopleBinding;
 import com.deha.app.di.DI;
 import com.deha.app.model.MeshMessageModel;
@@ -48,10 +49,9 @@ public class SearchPeopleFragment extends Fragment implements P2PConnections.Mes
         return binding.getRoot();
     }
 
-
     @Override
     public void onMessageUpdated(MeshMessageModel model) {
-
+        adapter.setUserModels(getListFromMeshMessage(DI.getP2pConnections().getMeshMessageModel()));
     }
 
     private List<UserAdapterModel> getListFromMeshMessage(MeshMessageModel model){
