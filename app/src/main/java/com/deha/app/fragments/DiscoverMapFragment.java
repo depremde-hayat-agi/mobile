@@ -107,9 +107,10 @@ public class DiscoverMapFragment extends Fragment implements OnMapReadyCallback 
   }
 
   private void setMarkers() {
+    // Uyarı sadece i am okeyler var
     List<Marker> markers = new ArrayList<>();
-    if (data != null && data.getPositiveList() != null) {
-      for (UserModel user : data.getPositiveList()) {
+    if (data != null && data.getiAmOkayMap() != null) {
+      for (UserModel user : data.getiAmOkayMap().values()) {
         Marker marker = googleMap.addMarker(new MarkerOptions()
             .position(new LatLng(user.getLatitude(), user.getLongitude()))
             .title(user.getName())

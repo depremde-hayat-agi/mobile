@@ -2,19 +2,22 @@ package com.deha.app.model;
 
 import com.deha.app.di.DI;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class RequestModel {
   private String id;
   private double latitude;
   private double longitude;
-  private List<UserModel> positiveList;
+  private HashMap<String, UserModel> helpMap;
+  private HashMap<String, UserModel> iAmOkayMap;
 
-  public RequestModel(String id, double latitude, double longitude, List<UserModel> positiveList) {
+  public RequestModel(String id, double latitude, double longitude, HashMap<String, UserModel> helpMap, HashMap<String, UserModel> iAmOkayMap) {
     this.id = id;
     this.latitude = latitude;
     this.longitude = longitude;
-    this.positiveList = positiveList;
+    this.helpMap = helpMap;
+    this.iAmOkayMap = iAmOkayMap;
   }
 
   public String getId() {
@@ -25,12 +28,20 @@ public class RequestModel {
     this.id = id;
   }
 
-  public List<UserModel> getPositiveList() {
-    return positiveList;
+  public HashMap<String, UserModel> getHelpMap() {
+    return helpMap;
   }
 
-  public void setPositiveList(List<UserModel> positiveList) {
-    this.positiveList = positiveList;
+  public void setHelpMap(HashMap<String, UserModel> helpMap) {
+    this.helpMap = helpMap;
+  }
+
+  public HashMap<String, UserModel> getiAmOkayMap() {
+    return iAmOkayMap;
+  }
+
+  public void setiAmOkayMap(HashMap<String, UserModel> iAmOkayMap) {
+    this.iAmOkayMap = iAmOkayMap;
   }
 
   public double getLatitude() {

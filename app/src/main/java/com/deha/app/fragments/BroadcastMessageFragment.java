@@ -3,6 +3,7 @@ package com.deha.app.fragments;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,6 @@ public class BroadcastMessageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Nullable
@@ -44,31 +44,33 @@ public class BroadcastMessageFragment extends Fragment {
 
         p2pConnections = new P2PConnections(getContext(), new P2PConnections.P2PListener() {
             @Override
-            public void newMessageArrived(String message) {
-                binding.textMessage.setText(binding.textMessage.getText() + " " + message);
+            public void log(String tag, String message) {
+                if(tag.equals(P2PConnections.LOG_NEW_PERSON_TAG)){
+                    binding.textMessage.setText(binding.textMessage.getText() + " " + message);
+                }
             }
         });
 
-        binding.buttonAdvertise.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                p2pConnections.startAdvertising();
-            }
-        });
+        p2pConnections.startAdvertising();
 
-        binding.buttonDiscover.setOnClickListener(new View.OnClickListener() {
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onClick(View view) {
-
+            public void run() {
                 p2pConnections.startDiscovery();
+            }
+        }, 2000);
 
+        binding.buttonHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                p2pConnections.addMyselfToMap(P2PConnections.BroadcastType.HELP);
             }
         });
 
-        binding.buttonSend.setOnClickListener(new View.OnClickListener() {
+        binding.buttonOkay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                p2pConnections.sendMessage(binding.inputMessage.getText().toString());
+                p2pConnections.addMyselfToMap(P2PConnections.BroadcastType.I_AM_OKAY);
             }
         });
 
