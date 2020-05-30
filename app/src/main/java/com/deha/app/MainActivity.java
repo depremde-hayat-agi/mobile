@@ -1,8 +1,11 @@
 package com.deha.app;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -54,6 +57,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     setSupportActionBar(toolbar);
     setDrawer();
     checkPermissions();
+    // ATTENTION: This was auto-generated to handle app links.
+    Intent appLinkIntent = getIntent();
+    String appLinkAction = appLinkIntent.getAction();
+    Uri appLinkData = appLinkIntent.getData();
+    if (appLinkData != null) {
+      Log.e("LINK", appLinkData.toString());
+    }
   }
 
   private void setDrawer() {

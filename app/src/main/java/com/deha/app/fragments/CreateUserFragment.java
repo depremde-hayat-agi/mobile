@@ -64,19 +64,28 @@ public class CreateUserFragment extends Fragment {
         if (valid) {
           progressDialog = ProgressDialog.show(getContext(), "Yükleniyor", "");
           DI.getFusedLocationClient().getLastLocation().addOnSuccessListener(location -> {
+            if (location == null) {
+              progressDialog.dismiss();
+              showLocationAlert();
+              return;
+            }
             DI.getLocalStorageService().setUser(new UserModel(UUID.randomUUID().toString(), binding.nameField.getText().toString(), binding.phoneField.getText().toString(), location.getLatitude(), location.getLongitude(), 0, ""));
             progressDialog.dismiss();
             createUserInterface.userCreated();
           }).addOnFailureListener(e -> {
             progressDialog.dismiss();
-            new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarlarının açık olduğundan emin olun").setPositiveButton("Tamam", (dialog, which) -> {
-
-            }).show();
+            showLocationAlert();
           });
         }
       }
     });
     return binding.getRoot();
+  }
+
+  private void showLocationAlert() {
+    new AlertDialog.Builder(getContext()).setTitle("Konum bulunamadı").setMessage("Lütfen konum ayarlarının açık olduğundan emin olun").setPositiveButton("Tamam", (dialog, which) -> {
+
+    }).show();
   }
 
   public void setCreateUserInterface(CreateUserInterface createUserInterface) {
