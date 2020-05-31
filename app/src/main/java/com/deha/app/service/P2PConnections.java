@@ -1,15 +1,22 @@
 package com.deha.app.service;
 
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import com.deha.app.App;
 import com.deha.app.MainActivity;
+import com.deha.app.R;
 import com.deha.app.di.DI;
 import com.deha.app.model.MeshMessageModel;
 import com.deha.app.model.RequestModel;
@@ -31,10 +38,13 @@ import com.google.android.gms.nearby.connection.Strategy;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.mapbox.mapboxsdk.plugins.offline.offline.OfflineConstants.NOTIFICATION_CHANNEL;
 
 public class P2PConnections {
 
@@ -56,7 +66,6 @@ public class P2PConnections {
         this.endPointIds = new HashSet<>();
         this.context = App.getContext();
         this.meshMessageModel = new MeshMessageModel(
-                new HashMap<>(),
                 new HashMap<>(),
                 new HashMap<>()
         );
@@ -109,9 +118,12 @@ public class P2PConnections {
         @Override
         public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
             log(LOG_CONNECTION_TAG, "payload received from : " + endpointId + "(" + Build.MODEL + ")" + "\n " + new String(payload.asBytes()) + "  \n" );
-            boolean changed = meshMessageModel.updateMaps(MeshMessageModel.fromJson(new String(payload.asBytes())));
-            if(changed){
+            List<UserModel> changedUsers = meshMessageModel.updateMap(MeshMessageModel.fromJson(new String(payload.asBytes())));
+            if(changedUsers.size() > 0){
                 performListChangedActions();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    sendPushNotifs(changedUsers);
+                }
             }
         }
 
@@ -196,21 +208,20 @@ public class P2PConnections {
     }
 
     public void addMyselfToMap(BroadcastType broadcastType){
-        HashMap<String, UserModel> newHelpMep = new HashMap<>();
-        HashMap<String, UserModel> newIAmOkayMap = new HashMap<>();
+        HashMap<String, UserModel> newUserModelMap = new HashMap<>();
         MainActivity.user.setLastTimestamp(
                 Long.toString(new Timestamp(System.currentTimeMillis()).getTime()));
-        if(broadcastType == BroadcastType.HELP){
-            newHelpMep.put(MainActivity.user.getId(), MainActivity.user);
-        }
-        else if(broadcastType == BroadcastType.I_AM_OKAY){
-            newIAmOkayMap.put(MainActivity.user.getId(), MainActivity.user);
-        }
+        MainActivity.user.setBroadcastType(broadcastType);
+        newUserModelMap.put(MainActivity.user.getId(), new UserModel(MainActivity.user));
+        DI.getLocalStorageService().setUser(MainActivity.user);
 
-        MeshMessageModel newMeshMessageModel = new MeshMessageModel(newHelpMep, newIAmOkayMap, new HashMap<>());
-        boolean changed = meshMessageModel.updateMaps(newMeshMessageModel);
-        if(changed){
+        MeshMessageModel newMeshMessageModel = new MeshMessageModel(newUserModelMap, new HashMap<>());
+        List<UserModel> changedUsers = meshMessageModel.updateMap(newMeshMessageModel);
+        if(changedUsers.size() > 0){
             performListChangedActions();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                sendPushNotifs(changedUsers);
+            }
         }
     }
 
@@ -222,12 +233,8 @@ public class P2PConnections {
         lastListSentToServer = false;
         sendToServer();
 
-        for(UserModel model: meshMessageModel.getHelpMap().values()){
+        for(UserModel model: meshMessageModel.getUserModelMap().values()){
             log(LOG_NEW_PERSON_TAG, "Help " + model.getName() + " \n");
-        }
-
-        for(UserModel model: meshMessageModel.getiAmOkayMap().values()){
-            log(LOG_NEW_PERSON_TAG, "OK " + model.getName() + "\n");
         }
 
         log(LOG_NEW_PERSON_TAG, " \n");
@@ -237,18 +244,14 @@ public class P2PConnections {
         RequestModel requestModel = new RequestModel(MainActivity.user.getId(),
                                                     MainActivity.user.getLatitude(),
                                                     MainActivity.user.getLongitude(),
-                                                    meshMessageModel.getHelpMap(),
-                                                    meshMessageModel.getiAmOkayMap());
+                                                    meshMessageModel.getUserModelMap());
 
         httpService.sendInfo(requestModel, new ResponseInterface<ResponseModel>() {
             @Override
             public void onSuccess(ResponseModel response) {
                 lastListSentToServer = true;
-                for(UserModel model: meshMessageModel.getHelpMap().values()){
+                for(UserModel model: meshMessageModel.getUserModelMap().values()){
                     log("DEHA Server", "Help " + model.getName() + " is sent to server");
-                }
-                for(UserModel model: meshMessageModel.getiAmOkayMap().values()){
-                    log("DEHA Server","OK " + model.getName() + " is sent to server");
                 }
 
                 log("DEHA Server","------------------------------------------------");
@@ -259,6 +262,50 @@ public class P2PConnections {
                 lastListSentToServer = false;
             }
         });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void sendPushNotifs(List<UserModel> userModels){
+        for(UserModel userModel: userModels){
+            if(!userModel.getId().equals(MainActivity.user.getId())){
+                String messageBody;
+                if(userModel.getBroadcastType() == BroadcastType.I_AM_OKAY){
+                    messageBody = userModel.getName() + " ben iyiyim mesajı gönderdi";
+                }
+                else{
+                    messageBody = userModel.getName() + " yardım isteği gönderdi";
+                }
+
+                NotificationChannel channel = null;
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    channel = new NotificationChannel(NOTIFICATION_CHANNEL, "HomeWhiz", NotificationManager.IMPORTANCE_HIGH);
+                }
+
+                Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.tooltip_no_arrow)
+                        .setContentTitle("Depremde Hayat Ağı")
+                        .setContentText(messageBody)
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri);
+
+
+                NotificationManager notificationManager =
+                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (channel!=null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    notificationBuilder.setChannelId(NOTIFICATION_CHANNEL);
+                    notificationManager.createNotificationChannel(channel);
+                }
+
+                int unique_num = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+                notificationManager.notify(unique_num /* ID of notification */, notificationBuilder.build());
+
+            }
+
+        }
+
     }
     
     private void log(String tag, String message) {

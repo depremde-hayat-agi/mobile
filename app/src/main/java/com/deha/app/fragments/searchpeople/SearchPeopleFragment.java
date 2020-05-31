@@ -2,11 +2,14 @@ package com.deha.app.fragments.searchpeople;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,7 +18,6 @@ import com.deha.app.R;
 import com.deha.app.databinding.FragmentSearchPeopleBinding;
 import com.deha.app.di.DI;
 import com.deha.app.model.MeshMessageModel;
-import com.deha.app.model.UserAdapterModel;
 import com.deha.app.model.UserModel;
 import com.deha.app.service.BroadcastType;
 import com.deha.app.service.P2PConnections;
@@ -36,13 +38,25 @@ public class SearchPeopleFragment extends Fragment implements P2PConnections.Mes
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("");
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)  {
+        setHasOptionsMenu(true);
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search_people, container, false);
         binding.recyclerViewSearch.setHasFixedSize(true);
-        adapter = new SearchPeopleAdapter(getListFromMeshMessage(DI.getP2pConnections().getMeshMessageModel()));
+        adapter = new SearchPeopleAdapter(new ArrayList<>(DI.getP2pConnections().getMeshMessageModel()
+                .getUserModelMap().values()));
+        DI.getP2pConnections().addMessageListener(this);
         binding.recyclerViewSearch.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.recyclerViewSearch.setAdapter(adapter);
 
@@ -51,23 +65,8 @@ public class SearchPeopleFragment extends Fragment implements P2PConnections.Mes
 
     @Override
     public void onMessageUpdated(MeshMessageModel model) {
-        adapter.setUserModels(getListFromMeshMessage(DI.getP2pConnections().getMeshMessageModel()));
+        adapter.setUserModels(new ArrayList<>(DI.getP2pConnections().getMeshMessageModel()
+                .getUserModelMap().values()));
+        adapter.notifyDataSetChanged();
     }
-
-    private List<UserAdapterModel> getListFromMeshMessage(MeshMessageModel model){
-        List<UserAdapterModel> userAdapterModels = new ArrayList<>();
-        for(UserModel userModel: model.getHelpMap().values()){
-            userAdapterModels.add(new UserAdapterModel(userModel, BroadcastType.HELP,
-                    false));
-        }
-
-        for(UserModel userModel: model.getiAmOkayMap().values()){
-            userAdapterModels.add(new UserAdapterModel(userModel, BroadcastType.I_AM_OKAY,
-                    false));
-        }
-
-
-        return userAdapterModels;
-    }
-
 }

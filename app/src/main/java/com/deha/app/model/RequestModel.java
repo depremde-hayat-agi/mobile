@@ -9,15 +9,13 @@ public class RequestModel {
   private String id;
   private double latitude;
   private double longitude;
-  private HashMap<String, UserModel> helpMap;
-  private HashMap<String, UserModel> iAmOkayMap;
+  private HashMap<String, UserModel> userModelMap;
 
-  public RequestModel(String id, double latitude, double longitude, HashMap<String, UserModel> helpMap, HashMap<String, UserModel> iAmOkayMap) {
+  public RequestModel(String id, double latitude, double longitude, HashMap<String, UserModel> userModelMap) {
     this.id = id;
     this.latitude = latitude;
     this.longitude = longitude;
-    this.helpMap = helpMap;
-    this.iAmOkayMap = iAmOkayMap;
+    this.userModelMap = userModelMap;
   }
 
   public String getId() {
@@ -28,20 +26,12 @@ public class RequestModel {
     this.id = id;
   }
 
-  public HashMap<String, UserModel> getHelpMap() {
-    return helpMap;
+  public HashMap<String, UserModel> getUserModelMap() {
+    return userModelMap;
   }
 
-  public void setHelpMap(HashMap<String, UserModel> helpMap) {
-    this.helpMap = helpMap;
-  }
-
-  public HashMap<String, UserModel> getiAmOkayMap() {
-    return iAmOkayMap;
-  }
-
-  public void setiAmOkayMap(HashMap<String, UserModel> iAmOkayMap) {
-    this.iAmOkayMap = iAmOkayMap;
+  public void setUserModelMap(HashMap<String, UserModel> userModelMap) {
+    this.userModelMap = userModelMap;
   }
 
   public double getLatitude() {

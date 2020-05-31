@@ -14,6 +14,7 @@ import com.deha.app.R;
 import com.deha.app.databinding.FragmentCreateUserBinding;
 import com.deha.app.di.DI;
 import com.deha.app.model.UserModel;
+import com.deha.app.service.BroadcastType;
 
 import java.util.UUID;
 
@@ -69,7 +70,7 @@ public class CreateUserFragment extends Fragment {
               showLocationAlert();
               return;
             }
-            DI.getLocalStorageService().setUser(new UserModel(UUID.randomUUID().toString(), binding.nameField.getText().toString(), binding.phoneField.getText().toString(), location.getLatitude(), location.getLongitude(), 0, ""));
+            DI.getLocalStorageService().setUser(new UserModel(UUID.randomUUID().toString(), binding.nameField.getText().toString(), binding.phoneField.getText().toString(), location.getLatitude(), location.getLongitude(), 0, "", BroadcastType.HELP));
             progressDialog.dismiss();
             createUserInterface.userCreated();
           }).addOnFailureListener(e -> {

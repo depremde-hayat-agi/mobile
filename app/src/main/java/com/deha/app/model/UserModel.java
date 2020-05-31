@@ -1,6 +1,7 @@
 package com.deha.app.model;
 
 import com.deha.app.di.DI;
+import com.deha.app.service.BroadcastType;
 
 import java.util.Objects;
 
@@ -13,6 +14,7 @@ public class UserModel {
   private int order;
   private String message;
   private String lastTimestamp;
+  private BroadcastType broadcastType;
 
   public UserModel(UserModel model) {
     this.id = model.getId();
@@ -22,10 +24,13 @@ public class UserModel {
     this.longitude = model.getLongitude();
     this.order = model.getOrder();
     this.message = model.getMessage();
+    this.lastTimestamp = model.getLastTimestamp();
+    this.broadcastType = model.getBroadcastType();
   }
 
 
-  public UserModel(String id, String name, String mobilePhone, double latitude, double longitude, int order, String message) {
+  public UserModel(String id, String name, String mobilePhone, double latitude, double longitude, int order, String message,
+                   BroadcastType broadcastType) {
     this.id = id;
     this.name = name;
     this.mobilePhone = mobilePhone;
@@ -33,6 +38,7 @@ public class UserModel {
     this.longitude = longitude;
     this.order = order;
     this.message = message;
+    this.broadcastType = broadcastType;
   }
 
   public String getId() {
@@ -97,6 +103,15 @@ public class UserModel {
 
   public void setLastTimestamp(String lastTimestamp) {
     this.lastTimestamp = lastTimestamp;
+  }
+
+
+  public BroadcastType getBroadcastType() {
+    return broadcastType;
+  }
+
+  public void setBroadcastType(BroadcastType broadcastType) {
+    this.broadcastType = broadcastType;
   }
 
   @Override

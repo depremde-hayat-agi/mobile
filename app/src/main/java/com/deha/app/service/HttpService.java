@@ -34,9 +34,8 @@ public class HttpService {
             requestWithMaps.getId(),
             requestWithMaps.getLatitude(),
             requestWithMaps.getLongitude(),
-            new ArrayList<>(requestWithMaps.getHelpMap().values()),
-            new ArrayList<>(requestWithMaps.getiAmOkayMap().values())
-    );
+            new ArrayList<>(requestWithMaps.getUserModelMap().values()));
+
 
     final String requestModelWithListsString = requestModelWithLists.toJson();
     Log.d(TAG, "Sending info:\n" + requestModelWithListsString);
@@ -73,15 +72,13 @@ public class HttpService {
     private String id;
     private double latitude;
     private double longitude;
-    private List<UserModel> helpMap;
-    private List<UserModel> iAmOkayMap;
+    private List<UserModel> userModelList;
 
-    public RequestModelWithLists(String id, double latitude, double longitude, List<UserModel> helpMap, List<UserModel> iAmOkayMap) {
+    public RequestModelWithLists(String id, double latitude, double longitude, List<UserModel> userModelList) {
       this.id = id;
       this.latitude = latitude;
       this.longitude = longitude;
-      this.helpMap = helpMap;
-      this.iAmOkayMap = iAmOkayMap;
+      this.userModelList = userModelList;
     }
 
     public String toJson() {

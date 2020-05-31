@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
@@ -110,7 +111,7 @@ public class DiscoverMapFragment extends Fragment {
         marker.remove();
       }
 
-      for (UserModel user : model.getHelpMap().values()) {
+      for (UserModel user : model.getUserModelMap().values()) {
         markerList.add(addUserMarker(user, R.drawable.help));
       }
 
@@ -118,16 +119,20 @@ public class DiscoverMapFragment extends Fragment {
         markerList.add(addRescueMarker(value));
       }
 
-      if (model.getHelpMap().containsValue(DI.getLocalStorageService().getUser())) {
-        binding.buttonHelp.hide();
-      } else {
-        binding.buttonHelp.show();
-      }
+      if (model.getUserModelMap().containsValue(DI.getLocalStorageService().getUser())) {
+        if(model.getUserModelMap().get(MainActivity.user.getId()).getBroadcastType() == BroadcastType.HELP){
+          binding.buttonHelp.hide();
+        }else {
+          binding.buttonHelp.show();
+        }
 
-      if (model.getiAmOkayMap().containsValue(DI.getLocalStorageService().getUser())) {
-        binding.buttonSafe.setVisibility(View.INVISIBLE);
-      } else {
-        binding.buttonSafe.setVisibility(View.VISIBLE);
+        if(model.getUserModelMap().get(MainActivity.user.getId()).getBroadcastType() == BroadcastType.I_AM_OKAY){
+          binding.buttonSafe.setVisibility(View.INVISIBLE);
+        }
+        else {
+          binding.buttonSafe.setVisibility(View.VISIBLE);
+        }
+
       }
     });
   }
@@ -327,6 +332,8 @@ public class DiscoverMapFragment extends Fragment {
   public void onResume() {
     super.onResume();
     mapView.onResume();
+    Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+    toolbar.setTitle("Depremde Hayat Ağı");
   }
 
   @Override

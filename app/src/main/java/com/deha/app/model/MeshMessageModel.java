@@ -2,51 +2,40 @@ package com.deha.app.model;
 
 import com.deha.app.di.DI;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MeshMessageModel {
 
-  private HashMap<String, UserModel> helpMap;
-  private HashMap<String, UserModel> iAmOkayMap;
+  private HashMap<String, UserModel> userModelMap;
   private HashMap<String, RescueModel> rescueMap;
 
-  public MeshMessageModel(HashMap<String, UserModel> helpMap, HashMap<String, UserModel> iAmOkayMap, HashMap<String, RescueModel> rescueMap) {
-    this.helpMap = helpMap;
-    this.iAmOkayMap = iAmOkayMap;
+  public MeshMessageModel(HashMap<String, UserModel> userModelMap, HashMap<String, RescueModel> rescueMap) {
+    this.userModelMap = userModelMap;
     this.rescueMap = rescueMap;
   }
 
-  public boolean updateMaps(MeshMessageModel newMeshMessageModel){
-    boolean changed = false;
-    changed = changed || updateMap(newMeshMessageModel.getHelpMap(), helpMap, iAmOkayMap);
-    changed = changed || updateMap(newMeshMessageModel.getiAmOkayMap(), iAmOkayMap, helpMap);
-    changed = changed || updateRescueMap(rescueMap, newMeshMessageModel.rescueMap);
+  public  List<UserModel> updateMap(MeshMessageModel newMeshMessageModel){
+    HashMap<String, UserModel> newUserModelMap = newMeshMessageModel.getUserModelMap();
+    List<UserModel> changedUsers = new ArrayList<>();
 
-    return changed;
-  }
-
-  private boolean updateMap(HashMap<String, UserModel> updateInfoMap, HashMap<String, UserModel> map, HashMap<String, UserModel> otherMap){
-    boolean changed = false;
-    for(String key: updateInfoMap.keySet()){
-
-      UserModel updateModel = updateInfoMap.get(key);
-      UserModel mapModel = map.get(key);
-      UserModel otherMapModel = otherMap.get(key);
-
-      if(mapModel == null || mapModel.getLastTimestamp().compareTo(updateModel.getLastTimestamp()) < 0){
-        changed = true;
-        map.put(key, updateModel);
-        mapModel = map.get(key);
+    for(UserModel model: newUserModelMap.values()){
+      if(userModelMap.containsKey(model.getId())){
+        if(model.getLastTimestamp().compareTo(userModelMap.get(model.getId()).getLastTimestamp()) > 0){
+          userModelMap.put(model.getId(), model);
+          changedUsers.add(model);
+        }
       }
-
-      if(otherMapModel != null && otherMapModel.getLastTimestamp().compareTo(mapModel.getLastTimestamp()) < 0){
-        changed = true;
-        map.remove(key);
+      else{
+        userModelMap.put(model.getId(), model);
+        changedUsers.add(model);
       }
     }
-
-    return changed;
+    return changedUsers;
   }
+
+
 
   private boolean updateRescueMap(HashMap<String, RescueModel> currentMap, HashMap<String, RescueModel> newMap){
     boolean changed = false;
@@ -60,20 +49,12 @@ public class MeshMessageModel {
     return changed;
   }
 
-  public HashMap<String, UserModel> getHelpMap() {
-    return helpMap;
+  public HashMap<String, UserModel> getUserModelMap() {
+    return userModelMap;
   }
 
-  public void setHelpMap(HashMap<String, UserModel> helpMap) {
-    this.helpMap = helpMap;
-  }
-
-  public HashMap<String, UserModel> getiAmOkayMap() {
-    return iAmOkayMap;
-  }
-
-  public void setiAmOkayMap(HashMap<String, UserModel> iAmOkayMap) {
-    this.iAmOkayMap = iAmOkayMap;
+  public void setUserModelMap(HashMap<String, UserModel> userModelMap) {
+    this.userModelMap = userModelMap;
   }
 
   public HashMap<String, RescueModel> getRescueMap() {

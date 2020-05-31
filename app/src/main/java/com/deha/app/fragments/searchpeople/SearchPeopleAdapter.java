@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.deha.app.R;
-import com.deha.app.model.UserAdapterModel;
 import com.deha.app.model.UserModel;
 import com.deha.app.service.BroadcastType;
 
@@ -18,14 +17,14 @@ import java.util.List;
 
 public class SearchPeopleAdapter extends RecyclerView.Adapter<SearchPeopleAdapter.SearchItemViewHolder> {
 
-    List<UserAdapterModel> userModels;
+    List<UserModel> userModels;
 
 
-    public SearchPeopleAdapter( List<UserAdapterModel> userModels ){
+    public SearchPeopleAdapter( List<UserModel> userModels ){
         this.userModels = userModels;
     }
 
-    public void setUserModels(List<UserAdapterModel> userModels) {
+    public void setUserModels(List<UserModel> userModels) {
         this.userModels = userModels;
     }
 
@@ -49,12 +48,9 @@ public class SearchPeopleAdapter extends RecyclerView.Adapter<SearchPeopleAdapte
             holder.icon.setBackgroundResource(R.drawable.background_search_icon_help);
         }
 
-        if(userModels.get(position).isContact()){
-            holder.goToLocation.setVisibility(View.VISIBLE);
-        }
-        else{
-            holder.goToLocation.setVisibility(View.GONE);
-        }
+
+        holder.goToLocation.setVisibility(View.INVISIBLE);
+
 
     }
 
